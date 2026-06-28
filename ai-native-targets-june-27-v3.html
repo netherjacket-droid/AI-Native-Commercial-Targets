@@ -1,0 +1,5913 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Native Targets - June 27 V3 — Common Room</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',sans-serif;background:#0f1117;color:#e8eaf0;min-height:100vh}
+  .app{display:flex;height:100vh;overflow:hidden}
+  .sidebar{width:224px;min-width:224px;background:#161922;border-right:1px solid #252836;display:flex;flex-direction:column;overflow:hidden}
+  .main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+  .header{padding:13px 20px;border-bottom:1px solid #252836;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-shrink:0;background:#161922}
+  .logo{font-size:11px;font-weight:700;color:#6c8fff;letter-spacing:.1em;text-transform:uppercase}
+  .page-title{font-size:14px;font-weight:500;color:#e8eaf0}
+  .header-left{display:flex;align-items:center;gap:10px}
+  .header-right{display:flex;align-items:center;gap:8px}
+  .search-wrap{position:relative}
+  .search{background:#1e2130;border:1px solid #252836;border-radius:8px;padding:7px 12px 7px 32px;font-size:13px;color:#e8eaf0;outline:none;width:230px;transition:border-color .15s}
+  .search::placeholder{color:#5a6080}
+  .search:focus{border-color:#6c8fff}
+  .search-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:#5a6080;font-size:14px;pointer-events:none}
+  .sidebar-label{padding:14px 16px 6px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#5a6080}
+  .ae-list{flex:1;overflow-y:auto;padding:4px 8px 16px}
+  .ae-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;cursor:pointer;transition:background .1s;margin-bottom:2px;user-select:none}
+  .ae-item:hover{background:#1e2130}
+  .ae-item.active{background:rgba(108,143,255,.13)}
+  .ae-avatar{width:28px;height:28px;border-radius:50%;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .ae-name{font-size:13px;flex:1;color:#c8cce0}
+  .ae-count{font-size:11px;color:#5a6080}
+  .ae-item.active .ae-name{color:#6c8fff;font-weight:500}
+  .sdiv{height:1px;background:#252836;margin:6px 12px}
+  .filters{padding:9px 20px;border-bottom:1px solid #252836;display:flex;align-items:center;gap:7px;flex-wrap:wrap;flex-shrink:0}
+  .flabel{font-size:11px;color:#5a6080;margin-right:1px}
+  .fsep{width:1px;height:14px;background:#252836;margin:0 3px}
+  .chip{font-size:12px;padding:3px 10px;border-radius:99px;border:1px solid #252836;color:#9aa3c0;background:transparent;cursor:pointer;transition:all .12s;white-space:nowrap}
+  .chip:hover{border-color:#6c8fff;color:#6c8fff}
+  .chip.active{background:rgba(108,143,255,.15);border-color:#6c8fff;color:#6c8fff}
+  .chip.hot{border-color:rgba(255,107,107,.4);color:#ff6b6b}
+  .chip.hot.active{background:rgba(255,107,107,.12);border-color:#ff6b6b}
+  .stats{padding:7px 20px;border-bottom:1px solid #252836;display:flex;gap:18px;flex-shrink:0}
+  .stat{font-size:12px;color:#5a6080}
+  .stat strong{color:#e8eaf0;font-weight:600;margin-right:3px}
+  .grid-wrap{flex:1;overflow-y:auto;padding:14px 20px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(285px,1fr));gap:10px}
+  .card{background:#161922;border:1px solid #252836;border-radius:10px;padding:13px 15px;cursor:pointer;transition:border-color .15s,transform .1s}
+  .card:hover{border-color:#3a4060;transform:translateY(-1px)}
+  .card.strong{border-left:2px solid #6c8fff}
+  .card-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px;gap:8px}
+  .card-name{font-size:14px;font-weight:500;color:#e8eaf0;line-height:1.3}
+  .card-domain{font-size:11px;color:#5a6080;margin-top:2px}
+  .ae-badge{font-size:10px;padding:2px 7px;border-radius:99px;font-weight:600;white-space:nowrap;flex-shrink:0}
+  .past-badge{display:inline-flex;align-items:center;gap:3px;font-size:10px;padding:2px 7px;border-radius:99px;background:rgba(251,191,36,.1);color:#f59e0b;border:1px solid rgba(251,191,36,.25);font-weight:600;margin-bottom:5px}
+  .score-row{display:flex;align-items:center;gap:8px;margin:8px 0 4px}
+  .bar-wrap{flex:1;height:3px;background:#1e2130;border-radius:2px;overflow:hidden}
+  .bar{height:100%;border-radius:2px}
+  .score-num{font-size:11px;font-weight:700;width:26px;text-align:right}
+  .rationale{font-size:12px;color:#9aa3c0;line-height:1.5;margin:4px 0}
+  .similar-row{display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin-top:7px}
+  .sim-label{font-size:10px;color:#5a6080}
+  .sim-tag{font-size:10px;padding:2px 7px;border-radius:99px;background:#1e2130;border:1px solid #2e3450;color:#9aa3c0}
+  .sigs{display:flex;flex-wrap:wrap;gap:4px;margin-top:7px;padding-top:7px;border-top:1px solid #252836}
+  .sig{font-size:10px;padding:2px 7px;border-radius:99px;font-weight:500}
+  .s-web{background:rgba(52,199,89,.12);color:#34c759}
+  .s-hire{background:rgba(108,143,255,.12);color:#6c8fff}
+  .s-news{background:rgba(255,179,71,.12);color:#ffb347}
+  .s-champ{background:rgba(255,107,107,.12);color:#ff6b6b}
+  .empty{display:flex;align-items:center;justify-content:center;padding:60px;color:#5a6080;font-size:13px;grid-column:1/-1}
+  .ov{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:100}
+  .drawer{position:fixed;right:0;top:0;bottom:0;width:460px;background:#161922;border-left:1px solid #252836;z-index:101;display:flex;flex-direction:column;overflow:hidden}
+  .drawer-hdr{padding:18px 20px;border-bottom:1px solid #252836;display:flex;justify-content:space-between;align-items:flex-start;flex-shrink:0}
+  .dclose{background:none;border:none;color:#5a6080;cursor:pointer;font-size:20px;line-height:1;padding:0 4px}
+  .dclose:hover{color:#e8eaf0}
+  .drawer-body{padding:20px;flex:1;overflow-y:auto}
+  .dsec{margin-bottom:20px}
+  .dsec-title{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#5a6080;margin-bottom:8px}
+  .dsec p{font-size:13px;color:#9aa3c0;line-height:1.6}
+  .sig-row{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid #252836;font-size:13px;color:#9aa3c0}
+  .sig-row:last-child{border:none}
+  .sig-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:4px}
+  .cr-btn{display:inline-flex;align-items:center;gap:6px;background:#6c8fff;color:#fff;border:none;border-radius:8px;padding:9px 16px;font-size:13px;cursor:pointer;text-decoration:none;font-weight:500}
+  .cr-btn:hover{background:#5a7aff}
+  .score-big{font-size:38px;font-weight:700;line-height:1}
+  .score-sub{font-size:12px;color:#5a6080;margin-top:3px}
+  .last-scored{font-size:11px;color:#5a6080;padding:0 20px 8px}
+  .past-warn{margin-top:8px;padding:8px 10px;background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.25);border-radius:8px;font-size:12px;color:#f59e0b}
+  .ae-list::-webkit-scrollbar,.grid-wrap::-webkit-scrollbar,.drawer-body::-webkit-scrollbar{width:4px}
+  .ae-list::-webkit-scrollbar-thumb,.grid-wrap::-webkit-scrollbar-thumb,.drawer-body::-webkit-scrollbar-thumb{background:#252836;border-radius:2px}
+</style>
+</head>
+<body>
+
+<div id="gate" style="position:fixed;inset:0;background:#0f1117;z-index:9999;display:flex;align-items:center;justify-content:center">
+  <div style="background:#161922;border:1px solid #252836;border-radius:16px;padding:40px;width:360px;text-align:center">
+    <div style="font-size:11px;font-weight:700;color:#6c8fff;letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px">Common Room</div>
+    <div style="font-size:20px;font-weight:600;color:#e8eaf0;margin-bottom:6px">AI Native Targets</div>
+    <div style="font-size:13px;color:#5a6080;margin-bottom:28px">June 27 · V3</div>
+    <input id="pw" type="password" placeholder="Enter password"
+      style="width:100%;background:#1e2130;border:1px solid #252836;border-radius:8px;padding:10px 14px;font-size:14px;color:#e8eaf0;outline:none;margin-bottom:12px;text-align:center"
+      onkeydown="if(event.key==='Enter')checkPw()">
+    <button onclick="checkPw()"
+      style="width:100%;background:#6c8fff;color:#fff;border:none;border-radius:8px;padding:10px;font-size:14px;font-weight:500;cursor:pointer">
+      Enter
+    </button>
+    <div id="pw-err" style="color:#ff6b6b;font-size:12px;margin-top:10px;min-height:16px"></div>
+  </div>
+</div>
+<script>
+  (function(){
+    // Change this password to whatever you want
+    var PW = 'commonroom2026';
+    var stored = sessionStorage.getItem('cr_auth');
+    if(stored === PW) document.getElementById('gate').style.display='none';
+  })();
+  function checkPw(){
+    var PW = 'commonroom2026';
+    var val = document.getElementById('pw').value;
+    if(val === PW){
+      sessionStorage.setItem('cr_auth', PW);
+      document.getElementById('gate').style.display='none';
+    } else {
+      document.getElementById('pw-err').textContent='Incorrect password';
+      document.getElementById('pw').value='';
+      document.getElementById('pw').focus();
+    }
+  }
+</script>
+
+<div class="app">
+  <div class="sidebar">
+    <div class="sidebar-label">AE Books</div>
+    <div class="ae-list" id="ae-list"></div>
+  </div>
+  <div class="main">
+    <div class="header">
+      <div class="header-left">
+        <span class="logo">Common Room</span>
+        <span style="color:#252836;font-size:16px">&#xB7;</span>
+        <span class="page-title">AI Native Targets - June 27 V3</span>
+      </div>
+      <div class="header-right">
+        <div class="search-wrap">
+          <span class="search-icon">&#x2315;</span>
+          <input class="search" id="search" placeholder="Search accounts&#x2026;" autocomplete="off">
+        </div>
+      </div>
+    </div>
+    <div class="filters" id="filters">
+      <span class="flabel">Tier</span>
+      <button class="chip active" data-f="tier" data-v="all">All</button>
+      <button class="chip" data-f="tier" data-v="strong">&#x2B50; Strong</button>
+      <button class="chip" data-f="tier" data-v="good">Good</button>
+      <button class="chip" data-f="tier" data-v="weak">Weak</button>
+      <div class="fsep"></div>
+      <span class="flabel">Signal</span>
+      <button class="chip active" data-f="sig" data-v="all">All accounts</button>
+      <button class="chip hot" data-f="sig" data-v="hot">&#x1F525; Hot signal only</button>
+      <div class="fsep"></div>
+      <span class="flabel">Sort</span>
+      <button class="chip active" data-f="sort" data-v="score">By score</button>
+      <button class="chip" data-f="sort" data-v="alpha">A&#x2013;Z</button>
+      <button class="chip" data-f="sort" data-v="signal">Signal first</button>
+    </div>
+    <div class="stats" id="stats"></div>
+    <div class="last-scored">Scored by Claude &#xB7; June 2026 &#xB7; &#x21BA; = past customer (win-back context) &#xB7; Ask Chris to regenerate for updated scores</div>
+    <div class="grid-wrap"><div class="grid" id="grid"></div></div>
+  </div>
+</div>
+
+<div id="ov" class="ov" style="display:none" onclick="closeDrawer()"></div>
+<div id="drawer" class="drawer" style="display:none">
+  <div class="drawer-hdr">
+    <div>
+      <div id="d-name" style="font-size:18px;font-weight:600;color:#e8eaf0"></div>
+      <div id="d-web" style="font-size:12px;color:#5a6080;margin-top:3px"></div>
+    </div>
+    <button class="dclose" onclick="closeDrawer()">&#x2715;</button>
+  </div>
+  <div class="drawer-body" id="drawer-body"></div>
+</div>
+
+<script>
+const AE_COLORS = {
+  'Collin Knee':      {c:'#a78bfa',b:'rgba(167,139,250,.15)'},
+  'Ben Miller':       {c:'#34d399',b:'rgba(52,211,153,.15)'},
+  'Jake Bradley':     {c:'#60a5fa',b:'rgba(96,165,250,.15)'},
+  'Emma Kallner':     {c:'#f472b6',b:'rgba(244,114,182,.15)'},
+  'James McTavish':   {c:'#fb923c',b:'rgba(251,146,60,.15)'},
+  'Andrew Weber':     {c:'#fbbf24',b:'rgba(251,191,36,.15)'},
+  'Nicholas Bontempo':{c:'#38bdf8',b:'rgba(56,189,248,.15)'},
+  'Andrew Young':     {c:'#a3e635',b:'rgba(163,230,53,.15)'},
+  'Jeet Singh':       {c:'#f87171',b:'rgba(248,113,113,.15)'},
+  'Trevor Plaut':     {c:'#4ade80',b:'rgba(74,222,128,.15)'},
+  'Prabhnoor Singh':  {c:'#c084fc',b:'rgba(192,132,252,.15)'},
+  'Renoli Huauya':    {c:'#fb7185',b:'rgba(251,113,133,.15)'},
+  'Jesse Schreiber':  {c:'#e879f9',b:'rgba(232,121,249,.15)'},
+  '_':                {c:'#9aa3c0',b:'rgba(154,163,192,.15)'},
+};
+const ACCOUNTS = [
+  {
+    "name": "Anaconda",
+    "website": "anaconda.com",
+    "employees": 363,
+    "industry": "Computer Software",
+    "ae": "Collin Knee",
+    "score": 88,
+    "tier": "strong",
+    "archetype": "developer-tooling",
+    "rationale": "Massive Python/data science community, OSS-first, developer buyers \u2014 one of the largest dev communities in ML.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Replit",
+      "Semgrep"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Cribl",
+    "website": "cribl.com",
+    "employees": 488,
+    "industry": "Computer Software",
+    "ae": "Collin Knee",
+    "score": 82,
+    "tier": "strong",
+    "archetype": "data-infra",
+    "rationale": "Observability data pipeline with technical DevOps/SecOps buyers and growing OSS Stream project.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "ClickHouse",
+      "Semgrep"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Colossyan",
+    "website": "colossyan.com",
+    "employees": 29,
+    "industry": "Computer Software",
+    "ae": "Collin Knee",
+    "score": 72,
+    "tier": "good",
+    "archetype": "ai-native",
+    "rationale": "AI video generation with PLG motion, but small team and less developer-community focus than top fits.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Gamma",
+      "Fal"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Chainguard",
+    "website": "chainguard.dev",
+    "employees": 64,
+    "industry": "Computer Software",
+    "ae": "Collin Knee",
+    "score": 87,
+    "tier": "strong",
+    "archetype": "security",
+    "rationale": "Supply chain security with OSS-first distroless containers, developer and DevSecOps buyers, strong community.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Semgrep",
+      "Cyera"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "GitGuardian",
+    "website": "gitguardian.com",
+    "employees": 117,
+    "industry": "Computer Software",
+    "ae": "Collin Knee",
+    "score": 86,
+    "tier": "strong",
+    "archetype": "security",
+    "rationale": "Developer-first secrets detection, OSS tooling, GitHub-native distribution \u2014 classic PLG security comp.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Semgrep",
+      "Incident.io"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Descope",
+    "website": "descope.com",
+    "employees": 33,
+    "industry": "Computer Software",
+    "ae": "Collin Knee",
+    "score": 84,
+    "tier": "strong",
+    "archetype": "developer-tooling",
+    "rationale": "Auth platform built API-first for developers, PLG free tier, technical buyers, SDK-led adoption.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Supabase",
+      "Vercel"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "InfluxData",
+    "website": "influxdata.com",
+    "employees": 190,
+    "industry": "Computer Software",
+    "ae": "Collin Knee",
+    "score": 87,
+    "tier": "strong",
+    "archetype": "data-infra",
+    "rationale": "OSS time-series DB with massive developer community, PLG motion, technical buyers across IoT and observability.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "ClickHouse",
+      "Semgrep"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Mixpanel",
+    "website": "mixpanel.com",
+    "employees": 438,
+    "industry": "Computer Software",
+    "ae": "Collin Knee",
+    "score": 74,
+    "tier": "good",
+    "archetype": "plg-saas",
+    "rationale": "PLG pioneer with product/engineering buyers, but more sales-led at scale and less developer-community signal.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Supabase",
+      "Gamma"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Framer",
+    "website": "framer.com",
+    "employees": 107,
+    "industry": "Computer Software",
+    "ae": "Collin Knee",
+    "score": 78,
+    "tier": "strong",
+    "archetype": "plg-saas",
+    "rationale": "PLG design tool with active community and creator ecosystem, technical-adjacent buyers.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Vercel",
+      "Gamma"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Forethought",
+    "website": "forethought.ai",
+    "employees": 132,
+    "industry": "Computer Software",
+    "ae": "Collin Knee",
+    "score": 71,
+    "tier": "good",
+    "archetype": "ai-native",
+    "rationale": "AI customer support with technical integration buyers, but buyer profile skews CS ops over engineering.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Cresta",
+      "Gamma"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Scribe",
+    "website": "scribehow.com",
+    "employees": 82,
+    "industry": "Computer Software",
+    "ae": "Collin Knee",
+    "score": 68,
+    "tier": "good",
+    "archetype": "plg-saas",
+    "rationale": "PLG documentation tool with strong self-serve motion, but buyers are less technical than ideal.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Gamma",
+      "Otter.ai"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "RunwayML",
+    "website": "runwayml.com",
+    "employees": 63,
+    "industry": "Computer Software",
+    "ae": "Collin Knee",
+    "score": 80,
+    "tier": "strong",
+    "archetype": "ai-native",
+    "rationale": "AI-native creative platform with strong developer/creator community and API for programmatic video generation.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Fal",
+      "Replit"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Mistral AI",
+    "website": "mistral.ai",
+    "employees": null,
+    "industry": "Computer Software",
+    "ae": "Collin Knee",
+    "score": 92,
+    "tier": "strong",
+    "archetype": "ai-native",
+    "rationale": "Open-weight LLM provider, massive developer community, API-first, OSS models \u2014 near-perfect fit.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Fireworks AI",
+      "Replit"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Sierra",
+    "website": "sierra.ai",
+    "employees": null,
+    "industry": "Information Technology",
+    "ae": "Collin Knee",
+    "score": 79,
+    "tier": "strong",
+    "archetype": "ai-native",
+    "rationale": "AI agent platform for enterprises, technical buyers, growing GTM \u2014 strong AI-native signal.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Cresta",
+      "Fireworks AI"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Retell",
+    "website": "retellai.com",
+    "employees": null,
+    "industry": "Computer Software",
+    "ae": "Collin Knee",
+    "score": 83,
+    "tier": "strong",
+    "archetype": "ai-native",
+    "rationale": "Voice AI API, developer-first, PLG self-serve, technical buyers building on top of their platform.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Cresta",
+      "Fireworks AI"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Stainless",
+    "website": "stainlessapi.com",
+    "employees": 27,
+    "industry": "Information Technology",
+    "ae": "Collin Knee",
+    "score": 85,
+    "tier": "strong",
+    "archetype": "developer-tooling",
+    "rationale": "API SDK generator, pure developer tooling, technical buyers, strong PLG motion for dev-experience teams.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Mintlify",
+      "Vercel"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Octopus Deploy",
+    "website": "octopus.com",
+    "employees": 213,
+    "industry": "Computer Software",
+    "ae": "Collin Knee",
+    "score": 79,
+    "tier": "strong",
+    "archetype": "developer-tooling",
+    "rationale": "DevOps deployment automation with developer and platform engineering buyers, growing community.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Semgrep",
+      "Incident.io"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Unit21",
+    "website": "unit21.ai",
+    "employees": 142,
+    "industry": "Computer Software",
+    "ae": "Collin Knee",
+    "score": 65,
+    "tier": "good",
+    "archetype": "plg-saas",
+    "rationale": "Fraud/AML platform with some technical buyers but primarily compliance and ops-led purchasing.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Cyera",
+      "Semgrep"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Feedzai",
+    "website": "feedzai.com",
+    "employees": 674,
+    "industry": "Computer Software",
+    "ae": "Collin Knee",
+    "score": 55,
+    "tier": "good",
+    "archetype": "other",
+    "rationale": "ML-powered risk platform, technical data science buyers, but enterprise sales-led with limited community layer.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Cyera",
+      "Exa"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Hydrolix",
+    "website": "hydrolix.io",
+    "employees": 50,
+    "industry": "Computer Software",
+    "ae": "Collin Knee",
+    "score": 78,
+    "tier": "strong",
+    "archetype": "data-infra",
+    "rationale": "Streaming data lake for logs/telemetry, technical DevOps/data engineering buyers, developer-adjacent.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "ClickHouse",
+      "Exa"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Magic",
+    "website": "magic.link",
+    "employees": 74,
+    "industry": "Open Source Software",
+    "ae": "Collin Knee",
+    "score": 80,
+    "tier": "strong",
+    "archetype": "developer-tooling",
+    "rationale": "Passwordless auth SDK, developer-first, API-led, OSS-adjacent with active developer community.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Supabase",
+      "Vercel"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Skyflow",
+    "website": "skyflow.com",
+    "employees": 117,
+    "industry": "Computer Software",
+    "ae": "Collin Knee",
+    "score": 75,
+    "tier": "strong",
+    "archetype": "developer-tooling",
+    "rationale": "Data privacy vault with developer API, technical security/engineering buyers, SDK-first distribution.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Cyera",
+      "Supabase"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Matik",
+    "website": "matik.io",
+    "employees": 54,
+    "industry": "Computer Software",
+    "ae": "Collin Knee",
+    "score": 60,
+    "tier": "good",
+    "archetype": "plg-saas",
+    "rationale": "Data-driven presentation automation \u2014 buyers skew revenue ops over engineering, limited dev community.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Gamma",
+      "Exa"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "JFrog",
+    "website": "jfrog.com",
+    "employees": 1429,
+    "industry": "Computer Software",
+    "ae": "Collin Knee",
+    "score": 84,
+    "tier": "strong",
+    "archetype": "developer-tooling",
+    "rationale": "DevOps artifact management with massive developer community, OSS Artifactory, platform engineering buyers.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Semgrep",
+      "Vercel"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Island",
+    "website": "island.io",
+    "employees": 185,
+    "industry": "Computer Software",
+    "ae": "Collin Knee",
+    "score": 62,
+    "tier": "good",
+    "archetype": "security",
+    "rationale": "Enterprise browser security, technical security buyers, but sales-led enterprise motion with no dev community.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Cyera",
+      "Semgrep"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Robin AI",
+    "website": "robinai.com",
+    "employees": 50,
+    "industry": "Legal Services",
+    "ae": "Collin Knee",
+    "score": 52,
+    "tier": "good",
+    "archetype": "other",
+    "rationale": "AI contract review \u2014 legal tech buyers with limited developer community or PLG signal.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Gamma",
+      "Exa"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Ontra",
+    "website": "ontra.ai",
+    "employees": 430,
+    "industry": "Computer Software",
+    "ae": "Collin Knee",
+    "score": 50,
+    "tier": "good",
+    "archetype": "other",
+    "rationale": "Legal ops automation, non-technical buyers, enterprise sales-led, no meaningful developer community.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Gamma",
+      "Exa"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "DataRobot",
+    "website": "datarobot.com",
+    "employees": 5000,
+    "industry": "Computer Software",
+    "ae": "Collin Knee",
+    "score": 58,
+    "tier": "good",
+    "archetype": "data-infra",
+    "rationale": "AutoML platform with data science buyers, but very enterprise/sales-led at 5,000 employees with no PLG motion.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Fireworks AI",
+      "Exa"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Q-CTRL",
+    "website": "q-ctrl.com",
+    "employees": 93,
+    "industry": "Engineering",
+    "ae": "Collin Knee",
+    "score": 63,
+    "tier": "good",
+    "archetype": "developer-tooling",
+    "rationale": "Quantum computing software with technical/research buyers and Python SDK, niche but developer-adjacent.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Fireworks AI",
+      "Semgrep"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Ravio",
+    "website": "ravio.com",
+    "employees": 50,
+    "industry": "Computer Software",
+    "ae": "Collin Knee",
+    "score": 48,
+    "tier": "weak",
+    "archetype": "other",
+    "rationale": "Compensation benchmarking SaaS \u2014 HR/people ops buyers, no developer community or PLG signal.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Gamma",
+      "Exa"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Airship",
+    "website": "airship.com",
+    "employees": 316,
+    "industry": "Computer Software",
+    "ae": "Collin Knee",
+    "score": 55,
+    "tier": "good",
+    "archetype": "martech",
+    "rationale": "Mobile engagement platform with developer SDK and technical integration buyers, but martech motion.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Gamma",
+      "Vercel"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Jellyfish",
+    "website": "jellyfish.co",
+    "employees": 210,
+    "industry": "Computer Software",
+    "ae": "Collin Knee",
+    "score": 72,
+    "tier": "good",
+    "archetype": "plg-saas",
+    "rationale": "Engineering management platform with engineering leader buyers and some data integration depth.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Incident.io",
+      "Exa"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "JumpCloud",
+    "website": "jumpcloud.com",
+    "employees": 648,
+    "industry": "Computer Software",
+    "ae": "Collin Knee",
+    "score": 74,
+    "tier": "good",
+    "archetype": "developer-tooling",
+    "rationale": "Open directory platform with IT/DevOps buyers, OSS-adjacent, API-first for identity management.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Semgrep",
+      "Supabase"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Pindrop",
+    "website": "pindrop.com",
+    "employees": 259,
+    "industry": "Information Technology",
+    "ae": "Collin Knee",
+    "score": 53,
+    "tier": "good",
+    "archetype": "other",
+    "rationale": "Voice fraud detection \u2014 security buyers but enterprise sales-led with no developer or OSS community.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Cyera",
+      "Otter.ai"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Funnel",
+    "website": "funnel.io",
+    "employees": 386,
+    "industry": "Computer Software",
+    "ae": "Collin Knee",
+    "score": 62,
+    "tier": "good",
+    "archetype": "martech",
+    "rationale": "Marketing data platform with technical marketing ops buyers, but primarily martech sales motion.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Exa",
+      "Gamma"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "BenchSci",
+    "website": "benchsci.com",
+    "employees": 425,
+    "industry": "Biotechnology",
+    "ae": "Collin Knee",
+    "score": 55,
+    "tier": "good",
+    "archetype": "other",
+    "rationale": "AI drug discovery \u2014 research scientist buyers, not developer community-driven, sales-led enterprise.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Exa",
+      "Fireworks AI"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Cycode",
+    "website": "cycode.com",
+    "employees": 111,
+    "industry": "Computer Software",
+    "ae": "Collin Knee",
+    "score": 82,
+    "tier": "strong",
+    "archetype": "security",
+    "rationale": "Application security with developer-first approach, IDE integrations, DevSecOps buyers \u2014 GitGuardian comp.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Semgrep",
+      "Incident.io"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Observe.AI",
+    "website": "observe.ai",
+    "employees": 273,
+    "industry": "Information Technology",
+    "ae": "Collin Knee",
+    "score": 63,
+    "tier": "good",
+    "archetype": "ai-native",
+    "rationale": "AI contact center with some technical buyers but primarily CS ops and contact center leadership.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Cresta",
+      "Otter.ai"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Dragos",
+    "website": "dragos.com",
+    "employees": 595,
+    "industry": "Computer Software",
+    "ae": "Collin Knee",
+    "score": 58,
+    "tier": "good",
+    "archetype": "security",
+    "rationale": "OT/ICS cybersecurity \u2014 specialized security buyers, enterprise sales-led, no developer community.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Cyera",
+      "Semgrep"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Flashpoint",
+    "website": "flashpoint.io",
+    "employees": 380,
+    "industry": "Computer Software",
+    "ae": "Collin Knee",
+    "score": 57,
+    "tier": "good",
+    "archetype": "security",
+    "rationale": "Threat intelligence platform \u2014 security analyst buyers, sales-led, limited developer/API distribution.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Cyera",
+      "Exa"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Tines",
+    "website": "tines.com",
+    "employees": 250,
+    "industry": "Security Automation",
+    "ae": "Ben Miller",
+    "score": 89,
+    "tier": "strong",
+    "archetype": "developer-tooling",
+    "rationale": "Security automation with a massive community of security engineers, active shared workflow library, strong PLG signal.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": "GTM & Sales roles open",
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": true,
+    "similarTo": [
+      "Incident.io",
+      "Semgrep"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Ngrok",
+    "website": "ngrok.com",
+    "employees": 70,
+    "industry": "Computer Software",
+    "ae": "Ben Miller",
+    "score": 91,
+    "tier": "strong",
+    "archetype": "developer-tooling",
+    "rationale": "Developer networking tool with huge OSS community, API-first, pure PLG \u2014 exact Vercel DNA for tunneling.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Vercel",
+      "Supabase"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Inworld AI",
+    "website": "inworld.ai",
+    "employees": 60,
+    "industry": "Computer Software",
+    "ae": "Ben Miller",
+    "score": 84,
+    "tier": "strong",
+    "archetype": "ai-native",
+    "rationale": "AI agent/NPC platform with developer API, active game dev community, hiring GTM aggressively.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": "3\u00d7 GTM Lead + Applied AI Engineer open",
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": true,
+    "similarTo": [
+      "Cresta",
+      "Fireworks AI"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Buildkite",
+    "website": "buildkite.com",
+    "employees": 103,
+    "industry": "Computer Software",
+    "ae": "Ben Miller",
+    "score": 88,
+    "tier": "strong",
+    "archetype": "developer-tooling",
+    "rationale": "CI/CD with OSS agents, developer community, platform engineering buyers \u2014 Semgrep DevOps comp.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Semgrep",
+      "Incident.io"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Together AI",
+    "website": "together.ai",
+    "employees": 10,
+    "industry": "Computer Software",
+    "ae": "Ben Miller",
+    "score": 86,
+    "tier": "strong",
+    "archetype": "ai-native",
+    "rationale": "Open-source AI inference platform, developer-first API, strong community of ML practitioners.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Fireworks AI",
+      "Replit"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Gorgias",
+    "website": "gorgias.com",
+    "employees": 315,
+    "industry": "Customer Support Software",
+    "ae": "Ben Miller",
+    "score": 62,
+    "tier": "good",
+    "archetype": "customer-support",
+    "rationale": "E-commerce customer support with developer API for Shopify integrations, but buyer is CS ops not engineering.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Cresta",
+      "Otter.ai"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Postscript",
+    "website": "postscript.io",
+    "employees": 213,
+    "industry": "Information Technology",
+    "ae": "Ben Miller",
+    "score": 58,
+    "tier": "good",
+    "archetype": "martech",
+    "rationale": "SMS marketing with developer API, but buyer profile skews e-commerce marketing ops over technical teams.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Gamma",
+      "Vercel"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Netlify",
+    "website": "netlify.com",
+    "employees": 290,
+    "industry": "Computer Software",
+    "ae": "Ben Miller",
+    "score": 91,
+    "tier": "strong",
+    "archetype": "developer-tooling",
+    "rationale": "Web developer platform with massive OSS community, JAMstack ecosystem, pure PLG \u2014 top-tier fit.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Vercel",
+      "Supabase"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Honeycomb",
+    "website": "honeycomb.io",
+    "employees": 181,
+    "industry": "Computer Software",
+    "ae": "Ben Miller",
+    "score": 90,
+    "tier": "strong",
+    "archetype": "developer-tooling",
+    "rationale": "Observability built by and for developers, OSS-adjacent, strong community, technical SRE/dev buyers.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Incident.io",
+      "Semgrep"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Monte Carlo",
+    "website": "montecarlodata.com",
+    "employees": 249,
+    "industry": "Open Source Software",
+    "ae": "Ben Miller",
+    "score": 80,
+    "tier": "strong",
+    "archetype": "data-infra",
+    "rationale": "Data observability with data engineering buyers, active community, integrates deep into modern data stacks.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "ClickHouse",
+      "Semgrep"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Customer.io",
+    "website": "customer.io",
+    "employees": 247,
+    "industry": "Computer Software",
+    "ae": "Ben Miller",
+    "score": 76,
+    "tier": "strong",
+    "archetype": "martech",
+    "rationale": "Developer-friendly messaging with API-first design, technical marketing/product buyers, active community.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Gamma",
+      "Supabase"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Drata",
+    "website": "drata.com",
+    "employees": 429,
+    "industry": "Information Technology",
+    "ae": "Ben Miller",
+    "score": 70,
+    "tier": "good",
+    "archetype": "plg-saas",
+    "rationale": "Compliance automation with technical integration layer, but buyers skew GRC/security ops over engineering.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Semgrep",
+      "Cyera"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "RevenueCat",
+    "website": "revenuecat.com",
+    "employees": 65,
+    "industry": "Computer Software",
+    "ae": "Ben Miller",
+    "score": 85,
+    "tier": "strong",
+    "archetype": "developer-tooling",
+    "rationale": "Mobile subscription SDK, developer-first, PLG, active developer community \u2014 SDK-led growth motion.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Supabase",
+      "Vercel"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "CoreWeave",
+    "website": "coreweave.com",
+    "employees": null,
+    "industry": "Computer Software",
+    "ae": "Ben Miller",
+    "score": 78,
+    "tier": "strong",
+    "archetype": "data-infra",
+    "rationale": "GPU cloud for AI/ML, highly technical infrastructure buyers, developer-adjacent with growing community.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Fireworks AI",
+      "Replit"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Captions",
+    "website": "captions.ai",
+    "employees": 50,
+    "industry": "Computer Software",
+    "ae": "Ben Miller",
+    "score": 74,
+    "tier": "good",
+    "archetype": "ai-native",
+    "rationale": "AI video editing with PLG motion, but buyers trend creator/marketing rather than technical engineering.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Cresta",
+      "Fal"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Edge Impulse",
+    "website": "edgeimpulse.com",
+    "employees": 91,
+    "industry": "Computer Software",
+    "ae": "Ben Miller",
+    "score": 82,
+    "tier": "strong",
+    "archetype": "developer-tooling",
+    "rationale": "ML platform for edge devices, developer-first, strong community of embedded/IoT engineers, OSS tooling.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Fireworks AI",
+      "Semgrep"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "DX",
+    "website": "getdx.com",
+    "employees": 55,
+    "industry": "Computer Software",
+    "ae": "Ben Miller",
+    "score": 80,
+    "tier": "strong",
+    "archetype": "developer-tooling",
+    "rationale": "Developer experience platform targeting engineering leaders, data-driven, API integrations with dev toolchains.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Mintlify",
+      "Semgrep"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Rasa",
+    "website": "rasa.com",
+    "employees": 117,
+    "industry": "Computer Software",
+    "ae": "Ben Miller",
+    "score": 83,
+    "tier": "strong",
+    "archetype": "ai-native",
+    "rationale": "OSS conversational AI framework, large developer community, Python-first, active GitHub ecosystem.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Fireworks AI",
+      "Replit"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Stream.io",
+    "website": "getstream.io",
+    "employees": 186,
+    "industry": "Computer Software",
+    "ae": "Ben Miller",
+    "score": 84,
+    "tier": "strong",
+    "archetype": "developer-tooling",
+    "rationale": "API-first chat/feeds SDK, developer community, PLG free tier, highly technical integration buyers.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Supabase",
+      "Vercel"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "5x",
+    "website": "5x.co",
+    "employees": 45,
+    "industry": "Computer Software",
+    "ae": "Ben Miller",
+    "score": 70,
+    "tier": "good",
+    "archetype": "data-infra",
+    "rationale": "Managed modern data stack \u2014 data engineering buyers, technical team, but small and sales-assisted motion.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "ClickHouse",
+      "Exa"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Fireblocks",
+    "website": "fireblocks.com",
+    "employees": 554,
+    "industry": "Computer Software",
+    "ae": "Ben Miller",
+    "score": 65,
+    "tier": "good",
+    "archetype": "developer-tooling",
+    "rationale": "Crypto infrastructure API with developer SDK, technical buyers, but enterprise sales-led at scale.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Exa",
+      "Vercel"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Mural",
+    "website": "mural.co",
+    "employees": 782,
+    "industry": "Computer Software",
+    "ae": "Ben Miller",
+    "score": 52,
+    "tier": "good",
+    "archetype": "plg-saas",
+    "rationale": "Visual collaboration with PLG roots, but buyers are design/product/ops rather than technical engineering.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Gamma",
+      "Otter.ai"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Highspot",
+    "website": "highspot.com",
+    "employees": 1124,
+    "industry": "Computer Software",
+    "ae": "Ben Miller",
+    "score": 48,
+    "tier": "weak",
+    "archetype": "other",
+    "rationale": "Sales enablement platform \u2014 sales ops/revenue ops buyers, no developer community or PLG signal.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Gamma",
+      "Exa"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Productboard",
+    "website": "productboard.com",
+    "employees": 434,
+    "industry": "Computer Software",
+    "ae": "Ben Miller",
+    "score": 62,
+    "tier": "good",
+    "archetype": "plg-saas",
+    "rationale": "Product management tool with PM/eng buyers and some PLG, but limited developer community layer.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Gamma",
+      "Exa"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Lucid",
+    "website": "lucid.co",
+    "employees": 5000,
+    "industry": "Computer Software",
+    "ae": "Ben Miller",
+    "score": 50,
+    "tier": "good",
+    "archetype": "plg-saas",
+    "rationale": "Visual collaboration at scale \u2014 broad PLG but non-technical buyers and no meaningful developer community.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Gamma",
+      "Otter.ai"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Affinity",
+    "website": "affinity.co",
+    "employees": 272,
+    "industry": "Computer Software",
+    "ae": "Ben Miller",
+    "score": 58,
+    "tier": "good",
+    "archetype": "other",
+    "rationale": "Relationship intelligence for dealmakers \u2014 VC/BD buyers, no developer community or PLG motion.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Exa",
+      "Gamma"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Aisera",
+    "website": "aisera.com",
+    "employees": 256,
+    "industry": "Computer Software",
+    "ae": "Ben Miller",
+    "score": 67,
+    "tier": "good",
+    "archetype": "ai-native",
+    "rationale": "AI service desk with technical IT buyers and some API depth, but enterprise sales-led motion.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Cresta",
+      "Fireworks AI"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "FloQast",
+    "website": "floqast.com",
+    "employees": 549,
+    "industry": "Computer Software",
+    "ae": "Ben Miller",
+    "score": 45,
+    "tier": "weak",
+    "archetype": "other",
+    "rationale": "Accounting close management \u2014 finance buyers, no developer community or PLG signal.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Gamma",
+      "Exa"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Checkmarx",
+    "website": "checkmarx.com",
+    "employees": 904,
+    "industry": "Computer Software",
+    "ae": "Ben Miller",
+    "score": 72,
+    "tier": "good",
+    "archetype": "security",
+    "rationale": "AppSec SAST with developer integration, IDE plugins, DevSecOps buyers \u2014 meaningful but sales-heavy motion.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Semgrep",
+      "Cyera"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Manychat",
+    "website": "manychat.com",
+    "employees": 179,
+    "industry": "Computer Software",
+    "ae": "Ben Miller",
+    "score": 65,
+    "tier": "good",
+    "archetype": "martech",
+    "rationale": "Chat marketing automation with developer API and active community of marketers/builders on Meta platforms.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Gamma",
+      "Vercel"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Dashlane",
+    "website": "dashlane.com",
+    "employees": 402,
+    "industry": "Computer Software",
+    "ae": "Ben Miller",
+    "score": 63,
+    "tier": "good",
+    "archetype": "plg-saas",
+    "rationale": "Password manager with PLG consumer roots and developer API, but buyers skew IT/security ops.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Semgrep",
+      "Supabase"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Orca Security",
+    "website": "orca.security",
+    "employees": 469,
+    "industry": "Computer Software",
+    "ae": "Ben Miller",
+    "score": 70,
+    "tier": "good",
+    "archetype": "security",
+    "rationale": "Cloud security with technical security engineering buyers and some API depth, but enterprise sales-led.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Cyera",
+      "Semgrep"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Hazelcast",
+    "website": "hazelcast.com",
+    "employees": 211,
+    "industry": "Computer Software",
+    "ae": "Ben Miller",
+    "score": 75,
+    "tier": "strong",
+    "archetype": "data-infra",
+    "rationale": "OSS in-memory data grid with developer community, technical platform engineering buyers, Java ecosystem.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "ClickHouse",
+      "Semgrep"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "BigPanda",
+    "website": "bigpanda.io",
+    "employees": 385,
+    "industry": "Computer Software",
+    "ae": "Ben Miller",
+    "score": 60,
+    "tier": "good",
+    "archetype": "data-infra",
+    "rationale": "AIOps platform with technical ITOps buyers, API integrations, but primarily enterprise sales-led.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Incident.io",
+      "Exa"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Oyster HR",
+    "website": "oysterhr.com",
+    "employees": 635,
+    "industry": "Human Resources",
+    "ae": "Ben Miller",
+    "score": 42,
+    "tier": "weak",
+    "archetype": "other",
+    "rationale": "Global employment platform \u2014 HR/people ops buyers, no developer community or technical GTM signal.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Gamma",
+      "Exa"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Arize AI",
+    "website": "arize.com",
+    "employees": null,
+    "industry": "Computer Software",
+    "ae": "Jake Bradley",
+    "score": 91,
+    "tier": "strong",
+    "archetype": "ai-native",
+    "rationale": "ML observability with OSS Phoenix (5M+ downloads), developer-first, LLM evaluation community \u2014 top-tier fit.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": "Forward Deployed AI Engineer open",
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": true,
+    "similarTo": [
+      "Fireworks AI",
+      "Replit"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Deepgram",
+    "website": "deepgram.com",
+    "employees": null,
+    "industry": "Computer Software",
+    "ae": "Jake Bradley",
+    "score": 88,
+    "tier": "strong",
+    "archetype": "ai-native",
+    "rationale": "Voice AI API, developer-first, PLG self-serve, large community of builders integrating speech.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Fireworks AI",
+      "Otter.ai"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "LaunchDarkly",
+    "website": "launchdarkly.com",
+    "employees": 571,
+    "industry": "Computer Software",
+    "ae": "Jake Bradley",
+    "score": 83,
+    "tier": "strong",
+    "archetype": "developer-tooling",
+    "rationale": "Feature flag platform with developer-first SDK, strong engineering community, technical buyers across eng orgs.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Semgrep",
+      "Incident.io"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Telnyx",
+    "website": "telnyx.com",
+    "employees": 261,
+    "industry": "Computer Software",
+    "ae": "Jake Bradley",
+    "score": 76,
+    "tier": "strong",
+    "archetype": "developer-tooling",
+    "rationale": "API-first communications platform with developer portal, technical integration buyers, PLG-adjacent motion.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Vercel",
+      "Supabase"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Quicknode",
+    "website": "quicknode.com",
+    "employees": 128,
+    "industry": "Computer Software",
+    "ae": "Jake Bradley",
+    "score": 80,
+    "tier": "strong",
+    "archetype": "developer-tooling",
+    "rationale": "Blockchain infrastructure API, developer-first, active Web3 developer community, technical buyers.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Supabase",
+      "Exa"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Weights & Biases",
+    "website": "wandb.ai",
+    "employees": 244,
+    "industry": "Computer Software",
+    "ae": "Emma Kallner",
+    "score": 93,
+    "tier": "strong",
+    "archetype": "ai-native",
+    "rationale": "MLOps platform with massive ML practitioner community, OSS-roots, developer-first \u2014 near-perfect fit.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": "Multiple Account Executive roles open",
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": true,
+    "similarTo": [
+      "Replit",
+      "Semgrep"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Comet",
+    "website": "comet.com",
+    "employees": 112,
+    "industry": "Computer Software",
+    "ae": "Emma Kallner",
+    "score": 78,
+    "tier": "strong",
+    "archetype": "ai-native",
+    "rationale": "ML experiment tracking, developer community, technical ML/data science buyers, W&B comp with OSS SDK.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Fireworks AI",
+      "Semgrep"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Viam",
+    "website": "viam.com",
+    "employees": 110,
+    "industry": "Computer Software",
+    "ae": "Emma Kallner",
+    "score": 80,
+    "tier": "strong",
+    "archetype": "developer-tooling",
+    "rationale": "Robotics/IoT developer platform with SDK-first approach, technical engineer buyers, growing OSS community.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Fireworks AI",
+      "Semgrep"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Spacelift",
+    "website": "spacelift.io",
+    "employees": 69,
+    "industry": "Computer Software",
+    "ae": "Emma Kallner",
+    "score": 81,
+    "tier": "strong",
+    "archetype": "developer-tooling",
+    "rationale": "IaC automation for platform engineers, technical DevOps buyers, Terraform/Pulumi community overlap.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Semgrep",
+      "Incident.io"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Finch",
+    "website": "tryfinch.com",
+    "employees": 71,
+    "industry": "Computer Software",
+    "ae": "Emma Kallner",
+    "score": 82,
+    "tier": "strong",
+    "archetype": "developer-tooling",
+    "rationale": "HR/payroll unified API, developer-first, technical integration buyers \u2014 Merge/Plaid DNA for HR data.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Supabase",
+      "Exa"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Synthesia",
+    "website": "synthesia.io",
+    "employees": 168,
+    "industry": "Computer Software",
+    "ae": "James McTavish",
+    "score": 78,
+    "tier": "strong",
+    "archetype": "ai-native",
+    "rationale": "AI video platform with PLG motion, API for programmatic video, active hiring and web visit signals.",
+    "signals": {
+      "webVisit": true,
+      "gtmHire": "ML Platform Engineer open (Europe)",
+      "news": "Expanding to Seattle, hiring Amazon veteran",
+      "champMove": false
+    },
+    "hasSignal": true,
+    "similarTo": [
+      "Fal",
+      "Gamma"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Civo",
+    "website": "civo.com",
+    "employees": 42,
+    "industry": "Computer Software",
+    "ae": "James McTavish",
+    "score": 76,
+    "tier": "strong",
+    "archetype": "developer-tooling",
+    "rationale": "Developer-first Kubernetes cloud with OSS community, technical DevOps buyers, strong community events.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Supabase",
+      "Vercel"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "SnapLogic",
+    "website": "snaplogic.com",
+    "employees": 364,
+    "industry": "Computer Software",
+    "ae": "James McTavish",
+    "score": 55,
+    "tier": "good",
+    "archetype": "data-infra",
+    "rationale": "iPaaS integration platform \u2014 technical data/IT buyers but enterprise sales-led with limited developer community.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Exa",
+      "Semgrep"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Sourcegraph",
+    "website": "sourcegraph.com",
+    "employees": 216,
+    "industry": "Computer Software",
+    "ae": "Andrew Weber",
+    "score": 89,
+    "tier": "strong",
+    "archetype": "developer-tooling",
+    "rationale": "AI code intelligence with massive developer community, OSS core, Cody AI \u2014 exact Semgrep DNA.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": "Regional Sales Director open",
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": true,
+    "similarTo": [
+      "Replit",
+      "Semgrep"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Mux",
+    "website": "mux.com",
+    "employees": 168,
+    "industry": "Computer Software",
+    "ae": "Andrew Weber",
+    "score": 85,
+    "tier": "strong",
+    "archetype": "developer-tooling",
+    "rationale": "API-first video infrastructure, developer community, PLG-adjacent, technical eng buyers \u2014 Stripe for video.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": "Appeared at MCP Night 2.0",
+      "champMove": false
+    },
+    "hasSignal": true,
+    "similarTo": [
+      "Vercel",
+      "Supabase"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "ReadMe",
+    "website": "readme.com",
+    "employees": 63,
+    "industry": "Computer Software",
+    "ae": "Andrew Weber",
+    "score": 84,
+    "tier": "strong",
+    "archetype": "developer-tooling",
+    "rationale": "Developer documentation platform, developer-first buyers, active community of API builders, PLG motion.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Mintlify",
+      "Vercel"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Census",
+    "website": "getcensus.com",
+    "employees": 186,
+    "industry": "Computer Software",
+    "ae": "Prabhnoor Singh",
+    "score": 83,
+    "tier": "strong",
+    "archetype": "data-infra",
+    "rationale": "Reverse ETL pioneer with data engineering buyers, technical community \u2014 Fivetran acquisition creates urgency.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": "Acquired by Fivetran \u2014 urgency window",
+      "champMove": false
+    },
+    "hasSignal": true,
+    "similarTo": [
+      "ClickHouse",
+      "Vercel"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Roboflow",
+    "website": "roboflow.com",
+    "employees": 33,
+    "industry": "Computer Software",
+    "ae": "Prabhnoor Singh",
+    "score": 87,
+    "tier": "strong",
+    "archetype": "ai-native",
+    "rationale": "Computer vision PLG platform, OSS models, developer community, active web visits \u2014 Fireworks comp for vision.",
+    "signals": {
+      "webVisit": true,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": true,
+    "similarTo": [
+      "Fireworks AI",
+      "Replit"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "PostHog",
+    "website": "posthog.com",
+    "employees": 33,
+    "industry": "Computer Software",
+    "ae": "Prabhnoor Singh",
+    "score": 91,
+    "tier": "strong",
+    "archetype": "developer-tooling",
+    "rationale": "Open-source product analytics, self-hosted PLG, developer community, engineers as primary buyers \u2014 top fit.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Supabase",
+      "Vercel"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Deepset",
+    "website": "deepset.ai",
+    "employees": 43,
+    "industry": "Computer Software",
+    "ae": "Prabhnoor Singh",
+    "score": 86,
+    "tier": "strong",
+    "archetype": "ai-native",
+    "rationale": "OSS Haystack LLM framework, AI-native, developer community, technical ML buyers \u2014 growing GTM signal.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": "Growth Marketing Lead open",
+      "news": "Partners with Celonis + HPE on sovereign agentic AI",
+      "champMove": false
+    },
+    "hasSignal": true,
+    "similarTo": [
+      "Fireworks AI",
+      "Replit"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Minio",
+    "website": "min.io",
+    "employees": 67,
+    "industry": "Computer Software",
+    "ae": "Prabhnoor Singh",
+    "score": 84,
+    "tier": "strong",
+    "archetype": "data-infra",
+    "rationale": "OSS object storage with massive developer community, S3-compatible API, technical infra buyers.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": "Databricks ISV Storage Partner of Year 2026",
+      "champMove": false
+    },
+    "hasSignal": true,
+    "similarTo": [
+      "Supabase",
+      "Semgrep"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Neon",
+    "website": "neon.tech",
+    "employees": 66,
+    "industry": "Computer Software",
+    "ae": "Jeet Singh",
+    "score": 88,
+    "tier": "strong",
+    "archetype": "developer-tooling",
+    "rationale": "Serverless Postgres, developer-first, PLG free tier, active developer community \u2014 Vercel for databases.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Supabase",
+      "Vercel"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Merge",
+    "website": "merge.dev",
+    "employees": 80,
+    "industry": "Computer Software",
+    "ae": "Jeet Singh",
+    "score": 83,
+    "tier": "strong",
+    "archetype": "developer-tooling",
+    "rationale": "Unified API platform, developer-first, technical integration buyers \u2014 Plaid comp for B2B APIs.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Supabase",
+      "Exa"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Hightouch",
+    "website": "hightouch.com",
+    "employees": 144,
+    "industry": "Computer Software",
+    "ae": "Jeet Singh",
+    "score": 85,
+    "tier": "strong",
+    "archetype": "data-infra",
+    "rationale": "Composable CDP/reverse ETL, data engineering buyers, active web visits, featured in GTM AI coverage.",
+    "signals": {
+      "webVisit": true,
+      "gtmHire": null,
+      "news": "Named in GTM AI startup coverage",
+      "champMove": false
+    },
+    "hasSignal": true,
+    "similarTo": [
+      "ClickHouse",
+      "Vercel"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Lavender",
+    "website": "lavender.ai",
+    "employees": 45,
+    "industry": "Computer Software",
+    "ae": "Nicholas Bontempo",
+    "score": 72,
+    "tier": "good",
+    "archetype": "ai-native",
+    "rationale": "AI sales email tool with PLG motion, but buyer is sales rep rather than engineer \u2014 limited dev community.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Cresta",
+      "Gamma"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Isovalent",
+    "website": "isovalent.com",
+    "employees": 128,
+    "industry": "Computer Software",
+    "ae": "Nicholas Bontempo",
+    "score": 82,
+    "tier": "strong",
+    "archetype": "developer-tooling",
+    "rationale": "Cilium/eBPF networking \u2014 OSS-first, huge developer community in cloud-native, platform engineering buyers.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Semgrep",
+      "Supabase"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Prophecy",
+    "website": "prophecy.io",
+    "employees": 88,
+    "industry": "Computer Software",
+    "ae": "Nicholas Bontempo",
+    "score": 74,
+    "tier": "good",
+    "archetype": "data-infra",
+    "rationale": "Low-code data engineering on Spark/DBT, technical data buyers, developer-adjacent but less community signal.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "ClickHouse",
+      "Exa"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Ikigai",
+    "website": "ikigailabs.io",
+    "employees": 41,
+    "industry": "Computer Software",
+    "ae": "Nicholas Bontempo",
+    "score": 68,
+    "tier": "good",
+    "archetype": "ai-native",
+    "rationale": "AI forecasting platform, technical data/ML buyers, but small team and limited developer community.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Fireworks AI",
+      "Fal"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Foursquare",
+    "website": "foursquare.com",
+    "employees": 640,
+    "industry": "Computer Software",
+    "ae": "Trevor Plaut",
+    "score": 62,
+    "tier": "good",
+    "archetype": "developer-tooling",
+    "rationale": "Location data API with developer portal and technical buyers, but large company with sales-led enterprise motion.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Exa",
+      "Vercel"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "PhotoRoom",
+    "website": "photoroom.com",
+    "employees": 54,
+    "industry": "Computer Software",
+    "ae": "Trevor Plaut",
+    "score": 71,
+    "tier": "good",
+    "archetype": "ai-native",
+    "rationale": "AI photo editing with PLG consumer motion and API, but buyers trend creator/e-commerce over engineering.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Fal",
+      "Gamma"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Tonic",
+    "website": "tonic.ai",
+    "employees": 97,
+    "industry": "Computer Software",
+    "ae": "Trevor Plaut",
+    "score": 78,
+    "tier": "strong",
+    "archetype": "ai-native",
+    "rationale": "Synthetic data for AI/ML, technical data/ML engineering buyers, developer API, strong fit for AI-native GTM.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Fal",
+      "Fireworks AI"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "LogRocket",
+    "website": "logrocket.com",
+    "employees": 348,
+    "industry": "Computer Software",
+    "ae": "Andrew Young",
+    "score": 77,
+    "tier": "strong",
+    "archetype": "developer-tooling",
+    "rationale": "Frontend monitoring with developer community, technical eng/product buyers, PLG-adjacent motion.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Incident.io",
+      "Semgrep"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Tufin",
+    "website": "tufin.com",
+    "employees": 522,
+    "industry": "Computer & Network Security",
+    "ae": "Renoli Huauya",
+    "score": 55,
+    "tier": "good",
+    "archetype": "security",
+    "rationale": "Network security policy \u2014 technical security buyers but legacy enterprise sales motion with no PLG community.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Cyera",
+      "Semgrep"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Wrike",
+    "website": "wrike.com",
+    "employees": 1230,
+    "industry": "Computer Software",
+    "ae": "Renoli Huauya",
+    "score": 45,
+    "tier": "weak",
+    "archetype": "other",
+    "rationale": "Project management for enterprise \u2014 ops/PM buyers, no developer community or technical GTM signal.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Gamma",
+      "Exa"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Pexip",
+    "website": "pexip.com",
+    "employees": 396,
+    "industry": "Computer Software",
+    "ae": "Renoli Huauya",
+    "score": 48,
+    "tier": "weak",
+    "archetype": "other",
+    "rationale": "Video conferencing infrastructure \u2014 IT buyers, limited developer community, sales-led enterprise motion.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Otter.ai",
+      "Gamma"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Lansweeper",
+    "website": "lansweeper.com",
+    "employees": 277,
+    "industry": "Computer Software",
+    "ae": "Renoli Huauya",
+    "score": 62,
+    "tier": "good",
+    "archetype": "developer-tooling",
+    "rationale": "IT asset management with technical IT/sysadmin buyers and API, but limited developer community signal.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Exa",
+      "Semgrep"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Movable Ink",
+    "website": "movableink.com",
+    "employees": 603,
+    "industry": "Computer Software",
+    "ae": "Renoli Huauya",
+    "score": 55,
+    "tier": "good",
+    "archetype": "martech",
+    "rationale": "Personalized content platform \u2014 marketing buyers, technical integration layer, but no developer community.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Gamma",
+      "Exa"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Spryker",
+    "website": "spryker.com",
+    "employees": 526,
+    "industry": "Computer Software",
+    "ae": "Renoli Huauya",
+    "score": 58,
+    "tier": "good",
+    "archetype": "developer-tooling",
+    "rationale": "Composable commerce platform with developer-first architecture and technical buyers, but sales-led enterprise.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Vercel",
+      "Exa"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Swapcard",
+    "website": "swapcard.com",
+    "employees": 209,
+    "industry": "Computer Software",
+    "ae": "Renoli Huauya",
+    "score": 52,
+    "tier": "good",
+    "archetype": "plg-saas",
+    "rationale": "Event networking platform \u2014 ops/event buyers, limited developer community or PLG signal.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Gamma",
+      "Exa"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Spekit",
+    "website": "spekit.com",
+    "employees": 138,
+    "industry": "Computer Software",
+    "ae": "Renoli Huauya",
+    "score": 60,
+    "tier": "good",
+    "archetype": "plg-saas",
+    "rationale": "Sales enablement/training with some PLG, but buyers are revenue ops not technical engineering teams.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Gamma",
+      "Otter.ai"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Actian",
+    "website": "actian.com",
+    "employees": 406,
+    "industry": "Computer Software",
+    "ae": "Renoli Huauya",
+    "score": 50,
+    "tier": "good",
+    "archetype": "data-infra",
+    "rationale": "Data integration platform \u2014 technical data buyers, but legacy company with sales-led motion.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "ClickHouse",
+      "Exa"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Flutterwave",
+    "website": "flutterwave.com",
+    "employees": 771,
+    "industry": "Computer Software",
+    "ae": "Renoli Huauya",
+    "score": 65,
+    "tier": "good",
+    "archetype": "developer-tooling",
+    "rationale": "Payments API for Africa, developer-first with SDK, technical fintech buyers, growing developer community.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Supabase",
+      "Exa"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Vyond",
+    "website": "vyond.com",
+    "employees": 249,
+    "industry": "Computer Software",
+    "ae": "Renoli Huauya",
+    "score": 48,
+    "tier": "weak",
+    "archetype": "other",
+    "rationale": "Animated video creation \u2014 L&D/marketing buyers, no developer community or technical GTM motion.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Gamma",
+      "Fal"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Maze",
+    "website": "maze.co",
+    "employees": 136,
+    "industry": "Computer Software",
+    "ae": "Renoli Huauya",
+    "score": 72,
+    "tier": "good",
+    "archetype": "plg-saas",
+    "rationale": "Product research platform with PLG motion and product/UX buyers \u2014 some developer-adjacent depth.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Gamma",
+      "Otter.ai"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Aura",
+    "website": "aura.com",
+    "employees": 696,
+    "industry": "Computer Software",
+    "ae": "Renoli Huauya",
+    "score": 45,
+    "tier": "weak",
+    "archetype": "other",
+    "rationale": "Digital safety for consumers \u2014 end-user product, no developer community or B2B technical GTM.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Gamma",
+      "Cyera"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "mabl",
+    "website": "mabl.com",
+    "employees": 112,
+    "industry": "Computer Software",
+    "ae": "Renoli Huauya",
+    "score": 75,
+    "tier": "strong",
+    "archetype": "developer-tooling",
+    "rationale": "AI-native test automation with developer and QA engineering buyers, API-first, growing dev community.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Semgrep",
+      "Incident.io"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "SmartBear",
+    "website": "smartbear.com",
+    "employees": 833,
+    "industry": "Computer Software",
+    "ae": "Renoli Huauya",
+    "score": 73,
+    "tier": "good",
+    "archetype": "developer-tooling",
+    "rationale": "Developer testing tools with community, but large legacy company with sales-led motion across many products.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Semgrep",
+      "Vercel"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "AtomicJar",
+    "website": "atomicjar.com",
+    "employees": 27,
+    "industry": "Engineering",
+    "ae": "Renoli Huauya",
+    "score": 82,
+    "tier": "strong",
+    "archetype": "developer-tooling",
+    "rationale": "Testcontainers OSS \u2014 massive developer community, developer-first, technical testing/engineering buyers.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Semgrep",
+      "Supabase"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Clarifai",
+    "website": "clarifai.com",
+    "employees": 90,
+    "industry": "Computer Software",
+    "ae": "Renoli Huauya",
+    "score": 78,
+    "tier": "strong",
+    "archetype": "ai-native",
+    "rationale": "AI/ML computer vision platform, developer API, OSS-adjacent, technical ML buyers, active community.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Fireworks AI",
+      "Replit"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Loom",
+    "website": "loom.com",
+    "employees": 260,
+    "industry": "Computer Software",
+    "ae": "Renoli Huauya",
+    "score": 68,
+    "tier": "good",
+    "archetype": "plg-saas",
+    "rationale": "Video messaging with strong PLG, but buyers skew business/ops users rather than technical engineering teams.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Otter.ai",
+      "Gamma"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Tetrate",
+    "website": "tetrate.io",
+    "employees": 129,
+    "industry": "Computer Software",
+    "ae": "Renoli Huauya",
+    "score": 78,
+    "tier": "strong",
+    "archetype": "developer-tooling",
+    "rationale": "Istio/Envoy service mesh, OSS-first, platform engineering buyers, strong cloud-native developer community.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Semgrep",
+      "Supabase"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "ZEDEDA",
+    "website": "zededa.com",
+    "employees": 93,
+    "industry": "Computer Software",
+    "ae": "Renoli Huauya",
+    "score": 65,
+    "tier": "good",
+    "archetype": "developer-tooling",
+    "rationale": "Edge computing platform with technical IoT/edge buyers and developer SDK, growing niche community.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Vercel",
+      "Fireworks AI"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Mason",
+    "website": "getmason.io",
+    "employees": 106,
+    "industry": "Computer Software",
+    "ae": "Renoli Huauya",
+    "score": 62,
+    "tier": "good",
+    "archetype": "developer-tooling",
+    "rationale": "Mobile device management with developer API, technical IT buyers, but limited community signal.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Vercel",
+      "Semgrep"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Unstructured",
+    "website": "unstructured.io",
+    "employees": 13,
+    "industry": "Computer Software",
+    "ae": "Renoli Huauya",
+    "score": 84,
+    "tier": "strong",
+    "archetype": "ai-native",
+    "rationale": "Data processing for LLMs, developer API, OSS library with growing AI/ML community, technical buyers.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Fireworks AI",
+      "Replit"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Piano",
+    "website": "piano.io",
+    "employees": 496,
+    "industry": "Computer Software",
+    "ae": "Renoli Huauya",
+    "score": 52,
+    "tier": "good",
+    "archetype": "martech",
+    "rationale": "Digital analytics/monetization \u2014 marketing/product buyers, limited developer community or PLG motion.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Gamma",
+      "Exa"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "WALLIX",
+    "website": "wallix.com",
+    "employees": 250,
+    "industry": "Computer Software",
+    "ae": "Renoli Huauya",
+    "score": 50,
+    "tier": "good",
+    "archetype": "security",
+    "rationale": "Privileged access management \u2014 security/IT buyers, European market, no developer community signal.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Cyera",
+      "Semgrep"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Dext",
+    "website": "dext.com",
+    "employees": 471,
+    "industry": "Accounting",
+    "ae": "Renoli Huauya",
+    "score": 40,
+    "tier": "weak",
+    "archetype": "other",
+    "rationale": "Accounting data capture \u2014 finance/accounting buyers, no developer community or technical GTM.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Gamma",
+      "Exa"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Deputy",
+    "website": "deputy.com",
+    "employees": 368,
+    "industry": "Computer Software",
+    "ae": "Renoli Huauya",
+    "score": 42,
+    "tier": "weak",
+    "archetype": "other",
+    "rationale": "Workforce management \u2014 operations/HR buyers, no meaningful developer community or PLG signal.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Gamma",
+      "Exa"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Ambassador Labs",
+    "website": "getambassador.io",
+    "employees": 85,
+    "industry": "Open Source Software",
+    "ae": "Renoli Huauya",
+    "score": 86,
+    "tier": "strong",
+    "archetype": "developer-tooling",
+    "rationale": "Kubernetes API gateway, OSS-first (Emissary-ingress), cloud-native developer community, platform eng buyers.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Semgrep",
+      "Supabase"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "ReversingLabs",
+    "website": "reversinglabs.com",
+    "employees": 270,
+    "industry": "Computer Software",
+    "ae": "Renoli Huauya",
+    "score": 60,
+    "tier": "good",
+    "archetype": "security",
+    "rationale": "Threat intelligence/malware analysis with technical security buyers and API, but sales-led enterprise motion.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Cyera",
+      "Semgrep"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Teikametrics",
+    "website": "teikametrics.com",
+    "employees": 288,
+    "industry": "Computer Software",
+    "ae": "Renoli Huauya",
+    "score": 52,
+    "tier": "good",
+    "archetype": "martech",
+    "rationale": "Retail media optimization \u2014 e-commerce/marketing buyers, no developer community or PLG signal.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Exa",
+      "Gamma"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "HAProxy Technologies",
+    "website": "haproxy.com",
+    "employees": 98,
+    "industry": "Computer Software",
+    "ae": "Renoli Huauya",
+    "score": 80,
+    "tier": "strong",
+    "archetype": "developer-tooling",
+    "rationale": "OSS load balancer with massive developer community, technical infra/DevOps buyers, Nginx comp.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Semgrep",
+      "Supabase"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Billtrust",
+    "website": "billtrust.com",
+    "employees": 805,
+    "industry": "Financial Services",
+    "ae": "Renoli Huauya",
+    "score": 38,
+    "tier": "weak",
+    "archetype": "other",
+    "rationale": "B2B payments/invoicing \u2014 finance buyers, no developer community, sales-led enterprise.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Exa",
+      "Gamma"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Lunchbox",
+    "website": "lunchbox.io",
+    "employees": 168,
+    "industry": "Restaurants",
+    "ae": "Renoli Huauya",
+    "score": 45,
+    "tier": "weak",
+    "archetype": "other",
+    "rationale": "Restaurant technology \u2014 ops buyers in F&B industry, no developer community or technical GTM.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Gamma",
+      "Exa"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Bambuser",
+    "website": "bambuser.com",
+    "employees": 164,
+    "industry": "Computer Software",
+    "ae": "Renoli Huauya",
+    "score": 55,
+    "tier": "good",
+    "archetype": "martech",
+    "rationale": "Live video shopping \u2014 e-commerce/marketing buyers, developer API, but no meaningful developer community.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Fal",
+      "Gamma"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Riskified",
+    "website": "riskified.com",
+    "employees": 781,
+    "industry": "Computer Software",
+    "ae": "Renoli Huauya",
+    "score": 57,
+    "tier": "good",
+    "archetype": "developer-tooling",
+    "rationale": "Fraud prevention with developer API, technical integration buyers, but enterprise sales-led motion.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Cyera",
+      "Exa"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Walnut",
+    "website": "walnut.io",
+    "employees": 131,
+    "industry": "Computer Software",
+    "ae": "Renoli Huauya",
+    "score": 65,
+    "tier": "good",
+    "archetype": "plg-saas",
+    "rationale": "Interactive product demos with PLG motion and sales/SE buyers \u2014 limited developer community signal.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Gamma",
+      "Exa"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Ordergroove",
+    "website": "ordergroove.com",
+    "employees": 121,
+    "industry": "Computer Software",
+    "ae": "Renoli Huauya",
+    "score": 52,
+    "tier": "good",
+    "archetype": "martech",
+    "rationale": "Subscription commerce \u2014 e-commerce/marketing buyers, developer API, but no developer community.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Gamma",
+      "Exa"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Accord",
+    "website": "inaccord.com",
+    "employees": 98,
+    "industry": "Computer Software",
+    "ae": "Renoli Huauya",
+    "score": 62,
+    "tier": "good",
+    "archetype": "plg-saas",
+    "rationale": "Mutual action plan tool for sales \u2014 revenue ops/sales buyers, some PLG, no developer community.",
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "similarTo": [
+      "Gamma",
+      "Exa"
+    ],
+    "pastCustomer": false
+  },
+  {
+    "name": "Lovable",
+    "website": "lovable.dev",
+    "employees": null,
+    "industry": "Computer Software",
+    "ae": "Ben Miller",
+    "score": 94,
+    "tier": "strong",
+    "archetype": "ai-native",
+    "rationale": "Vibe coding AI platform with explosive developer community, pure PLG, massive GitHub presence \u2014 Replit/Vercel-tier fit.",
+    "similarTo": [
+      "Replit",
+      "Vercel"
+    ],
+    "signals": {
+      "webVisit": false,
+      "gtmHire": "Head of Sales open",
+      "news": "Fastest-growing AI dev tool in 2025",
+      "champMove": false
+    },
+    "hasSignal": true,
+    "pastCustomer": false,
+    "priority": true
+  },
+  {
+    "name": "Hugging Face",
+    "website": "huggingface.co",
+    "employees": 201,
+    "industry": "Computer Software",
+    "ae": "Jeet Singh",
+    "score": 97,
+    "tier": "strong",
+    "archetype": "ai-native",
+    "rationale": "Largest AI developer community on earth, OSS ML platform, API-first \u2014 the definitive Common Room fit.",
+    "similarTo": [
+      "Replit",
+      "Fireworks AI"
+    ],
+    "signals": {
+      "webVisit": false,
+      "gtmHire": "Multiple GTM & Partnership roles open",
+      "news": "Raised $300M Series E at $4.5B valuation",
+      "champMove": false
+    },
+    "hasSignal": true,
+    "pastCustomer": false,
+    "priority": true
+  },
+  {
+    "name": "Lambda",
+    "website": "lambdalabs.com",
+    "employees": 143,
+    "industry": "Information Technology",
+    "ae": "Emma Kallner",
+    "score": 85,
+    "tier": "strong",
+    "archetype": "ai-native",
+    "rationale": "GPU cloud built for AI/ML engineers, developer-first, technical buyers, growing community of ML practitioners.",
+    "similarTo": [
+      "Fireworks AI",
+      "Replit"
+    ],
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "pastCustomer": false,
+    "priority": true
+  },
+  {
+    "name": "DeepLearning.AI",
+    "website": "deeplearning.ai",
+    "employees": 50,
+    "industry": "Computer Software",
+    "ae": "Ben Miller",
+    "score": 83,
+    "tier": "strong",
+    "archetype": "ai-native",
+    "rationale": "Andrew Ng's AI education platform with massive global developer community and strong signal layer in courses/community.",
+    "similarTo": [
+      "Replit",
+      "Fireworks AI"
+    ],
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "pastCustomer": false,
+    "priority": true
+  },
+  {
+    "name": "Descript",
+    "website": "descript.com",
+    "employees": 122,
+    "industry": "Entertainment",
+    "ae": "Andrew Weber",
+    "score": 78,
+    "tier": "strong",
+    "archetype": "ai-native",
+    "rationale": "AI audio/video editing with PLG self-serve, developer API, active creator community \u2014 RunwayML comp.",
+    "similarTo": [
+      "Fal",
+      "Gamma"
+    ],
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "pastCustomer": true,
+    "priority": false
+  },
+  {
+    "name": "Gravitee",
+    "website": "gravitee.io",
+    "employees": 106,
+    "industry": "Computer Software",
+    "ae": "Emma Kallner",
+    "score": 80,
+    "tier": "strong",
+    "archetype": "developer-tooling",
+    "rationale": "OSS API gateway, developer community, platform engineering buyers \u2014 strong Ambassador Labs comp.",
+    "similarTo": [
+      "Semgrep",
+      "Supabase"
+    ],
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "pastCustomer": true,
+    "priority": true
+  },
+  {
+    "name": "Camunda",
+    "website": "camunda.com",
+    "employees": 357,
+    "industry": "Computer Software",
+    "ae": "James McTavish",
+    "score": 79,
+    "tier": "strong",
+    "archetype": "developer-tooling",
+    "rationale": "OSS process automation with developer community and technical buyers \u2014 Tines comp for BPM workflows.",
+    "similarTo": [
+      "Tines",
+      "Semgrep"
+    ],
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "pastCustomer": true,
+    "priority": false
+  },
+  {
+    "name": "Wolfram",
+    "website": "wolfram.com",
+    "employees": 634,
+    "industry": "Computer Software",
+    "ae": "Trevor Plaut",
+    "score": 76,
+    "tier": "strong",
+    "archetype": "developer-tooling",
+    "rationale": "Iconic developer tools and knowledge APIs, massive technical community, Mathematica/WolframAlpha ecosystem.",
+    "similarTo": [
+      "Exa",
+      "Semgrep"
+    ],
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "pastCustomer": false,
+    "priority": false
+  },
+  {
+    "name": "Tidelift",
+    "website": "tidelift.com",
+    "employees": 77,
+    "industry": "Computer Software",
+    "ae": "Trevor Plaut",
+    "score": 78,
+    "tier": "strong",
+    "archetype": "developer-tooling",
+    "rationale": "OSS dependency management, developer-first, technical engineering buyers \u2014 Semgrep OSS supply chain comp.",
+    "similarTo": [
+      "Semgrep",
+      "Vercel"
+    ],
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "pastCustomer": false,
+    "priority": false
+  },
+  {
+    "name": "Redgate Software",
+    "website": "red-gate.com",
+    "employees": 450,
+    "industry": "Computer Software",
+    "ae": "James McTavish",
+    "score": 75,
+    "tier": "strong",
+    "archetype": "developer-tooling",
+    "rationale": "Developer database tooling with active dev community and technical buyers \u2014 JFrog comp for DB teams.",
+    "similarTo": [
+      "Semgrep",
+      "Vercel"
+    ],
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "pastCustomer": false,
+    "priority": false
+  },
+  {
+    "name": "Phylum",
+    "website": "phylum.io",
+    "employees": 33,
+    "industry": "Computer Software",
+    "ae": "James McTavish",
+    "score": 82,
+    "tier": "strong",
+    "archetype": "security",
+    "rationale": "OSS supply chain security, developer-first, DevSecOps buyers \u2014 Chainguard/GitGuardian direct comp.",
+    "similarTo": [
+      "Semgrep",
+      "Chainguard"
+    ],
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "pastCustomer": false,
+    "priority": true
+  },
+  {
+    "name": "zoo.dev",
+    "website": "zoo.dev",
+    "employees": 189,
+    "industry": "Design",
+    "ae": "Andrew Young",
+    "score": 78,
+    "tier": "strong",
+    "archetype": "developer-tooling",
+    "rationale": "AI CAD/design API platform, developer-first, technical engineering buyers, strong OSS tooling.",
+    "similarTo": [
+      "Vercel",
+      "Fireworks AI"
+    ],
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "pastCustomer": false,
+    "priority": false
+  },
+  {
+    "name": "Nebius",
+    "website": "nebius.com",
+    "employees": 604,
+    "industry": "Computer Software",
+    "ae": "James McTavish",
+    "score": 76,
+    "tier": "strong",
+    "archetype": "ai-native",
+    "rationale": "AI cloud infrastructure with developer-first GPU/LLM services, technical buyers, growing community.",
+    "similarTo": [
+      "Fireworks AI",
+      "Replit"
+    ],
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "pastCustomer": false,
+    "priority": false
+  },
+  {
+    "name": "Cast AI",
+    "website": "cast.ai",
+    "employees": 76,
+    "industry": "Open Source Software",
+    "ae": "Prabhnoor Singh",
+    "score": 79,
+    "tier": "strong",
+    "archetype": "developer-tooling",
+    "rationale": "OSS Kubernetes cost optimization, developer-first, platform engineering buyers \u2014 Isovalent comp.",
+    "similarTo": [
+      "Semgrep",
+      "Supabase"
+    ],
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "pastCustomer": true,
+    "priority": false
+  },
+  {
+    "name": "Filigran",
+    "website": "filigran.io",
+    "employees": null,
+    "industry": "Computer Software",
+    "ae": "Jeet Singh",
+    "score": 80,
+    "tier": "strong",
+    "archetype": "security",
+    "rationale": "OSS threat intelligence platform with developer community and security engineering buyers \u2014 GitGuardian comp.",
+    "similarTo": [
+      "Semgrep",
+      "Cyera"
+    ],
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "pastCustomer": false,
+    "priority": true
+  },
+  {
+    "name": "AVA Labs",
+    "website": "avalabs.org",
+    "employees": 284,
+    "industry": "Computer Software",
+    "ae": "Prabhnoor Singh",
+    "score": 76,
+    "tier": "strong",
+    "archetype": "developer-tooling",
+    "rationale": "Blockchain/Web3 OSS platform with massive developer community building on Avalanche \u2014 Ethereum-scale ecosystem.",
+    "similarTo": [
+      "Supabase",
+      "Exa"
+    ],
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "pastCustomer": false,
+    "priority": false
+  },
+  {
+    "name": "Consensys",
+    "website": "consensys.io",
+    "employees": null,
+    "industry": "Computer Software",
+    "ae": "Nicholas Bontempo",
+    "score": 78,
+    "tier": "strong",
+    "archetype": "developer-tooling",
+    "rationale": "Web3 developer tools including OSS MetaMask, massive Ethereum developer community, technical buyers.",
+    "similarTo": [
+      "Supabase",
+      "Exa"
+    ],
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "pastCustomer": false,
+    "priority": false
+  },
+  {
+    "name": "Moonvalley",
+    "website": "moonvalley.ai",
+    "employees": null,
+    "industry": "Computer Software",
+    "ae": "Andrew Weber",
+    "score": 75,
+    "tier": "strong",
+    "archetype": "ai-native",
+    "rationale": "AI video generation with developer API, active creative community \u2014 direct RunwayML/Fal comp.",
+    "similarTo": [
+      "Fal",
+      "Fireworks AI"
+    ],
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "pastCustomer": false,
+    "priority": false
+  },
+  {
+    "name": "Music AI",
+    "website": "music.ai",
+    "employees": null,
+    "industry": "Computer Software",
+    "ae": "Andrew Young",
+    "score": 76,
+    "tier": "strong",
+    "archetype": "ai-native",
+    "rationale": "AI audio API platform, developer-first, technical builders integrating audio \u2014 Fireworks AI comp for audio.",
+    "similarTo": [
+      "Fireworks AI",
+      "Fal"
+    ],
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "pastCustomer": false,
+    "priority": false
+  },
+  {
+    "name": "Segment",
+    "website": "segment.com",
+    "employees": 622,
+    "industry": "Computer Software",
+    "ae": "Nicholas Bontempo",
+    "score": 82,
+    "tier": "strong",
+    "archetype": "data-infra",
+    "rationale": "CDP with developer-first API, massive integration ecosystem, data engineering buyers \u2014 Hightouch/Census direct comp.",
+    "similarTo": [
+      "Hightouch",
+      "ClickHouse"
+    ],
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "pastCustomer": true,
+    "priority": true
+  },
+  {
+    "name": "Make",
+    "website": "make.com",
+    "employees": 273,
+    "industry": "Computer Software",
+    "ae": "Jesse Schreiber",
+    "score": 72,
+    "tier": "good",
+    "archetype": "developer-tooling",
+    "rationale": "No-code automation with developer API and large builder community \u2014 Tines comp for visual workflow automation.",
+    "similarTo": [
+      "Tines",
+      "Semgrep"
+    ],
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "pastCustomer": false,
+    "priority": false
+  },
+  {
+    "name": "Prolific",
+    "website": "prolific.co",
+    "employees": 221,
+    "industry": "Computer Software",
+    "ae": "Jesse Schreiber",
+    "score": 68,
+    "tier": "good",
+    "archetype": "plg-saas",
+    "rationale": "Research data platform with developer API, data science buyers, active academic/ML community.",
+    "similarTo": [
+      "Exa",
+      "Semgrep"
+    ],
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "pastCustomer": false,
+    "priority": false
+  },
+  {
+    "name": "Platzi",
+    "website": "platzi.com",
+    "employees": 614,
+    "industry": "Computer Software",
+    "ae": "Jeet Singh",
+    "score": 70,
+    "tier": "good",
+    "archetype": "plg-saas",
+    "rationale": "Developer education platform with huge LATAM developer community, technical learners, active coding courses.",
+    "similarTo": [
+      "Mintlify",
+      "Replit"
+    ],
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "pastCustomer": false,
+    "priority": false
+  },
+  {
+    "name": "Supermetrics",
+    "website": "supermetrics.com",
+    "employees": 349,
+    "industry": "Computer Software",
+    "ae": "Andrew Young",
+    "score": 68,
+    "tier": "good",
+    "archetype": "data-infra",
+    "rationale": "Marketing data pipeline with developer API and data engineering buyers \u2014 Census/Hightouch comp in martech.",
+    "similarTo": [
+      "Census",
+      "ClickHouse"
+    ],
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "pastCustomer": false,
+    "priority": false
+  },
+  {
+    "name": "Driver AI",
+    "website": "driver.ai",
+    "employees": null,
+    "industry": "Computer Software",
+    "ae": "Jake Bradley",
+    "score": 72,
+    "tier": "good",
+    "archetype": "ai-native",
+    "rationale": "AI-native developer tooling with technical buyers and growing community of engineering teams.",
+    "similarTo": [
+      "Fireworks AI",
+      "Replit"
+    ],
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "pastCustomer": false,
+    "priority": false
+  },
+  {
+    "name": "Educative",
+    "website": "educative.io",
+    "employees": 769,
+    "industry": "Computer Software",
+    "ae": "Andrew Weber",
+    "score": 69,
+    "tier": "good",
+    "archetype": "plg-saas",
+    "rationale": "Developer education platform with large coding community, interactive courses, technical learners.",
+    "similarTo": [
+      "Mintlify",
+      "Replit"
+    ],
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "pastCustomer": false,
+    "priority": false
+  },
+  {
+    "name": "Sana Labs",
+    "website": "sanalabs.com",
+    "employees": 50,
+    "industry": "Computer Software",
+    "ae": "Trevor Plaut",
+    "score": 67,
+    "tier": "good",
+    "archetype": "ai-native",
+    "rationale": "AI learning platform with developer API and technical buyers \u2014 AI-native education with community signal.",
+    "similarTo": [
+      "Gamma",
+      "Fireworks AI"
+    ],
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "pastCustomer": false,
+    "priority": false
+  },
+  {
+    "name": "Input Output (IOHK)",
+    "website": "iohk.io",
+    "employees": 1000,
+    "industry": "Computer Software",
+    "ae": "Nicholas Bontempo",
+    "score": 72,
+    "tier": "good",
+    "archetype": "developer-tooling",
+    "rationale": "OSS blockchain R&D with massive developer community building on Cardano, strong technical ecosystem.",
+    "similarTo": [
+      "Supabase",
+      "Exa"
+    ],
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "pastCustomer": false,
+    "priority": false
+  },
+  {
+    "name": "Causal",
+    "website": "causal.app",
+    "employees": 43,
+    "industry": "Computer Software",
+    "ae": "Prabhnoor Singh",
+    "score": 65,
+    "tier": "good",
+    "archetype": "plg-saas",
+    "rationale": "Data modeling tool with developer API, technical finance/data buyers, PLG self-serve motion.",
+    "similarTo": [
+      "Exa",
+      "Gamma"
+    ],
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "pastCustomer": false,
+    "priority": false
+  },
+  {
+    "name": "Aerospike",
+    "website": "aerospike.com",
+    "employees": 248,
+    "industry": "Computer Software",
+    "ae": "Nicholas Bontempo",
+    "score": 80,
+    "tier": "strong",
+    "archetype": "data-infra",
+    "rationale": "OSS real-time NoSQL DB with developer community and technical data engineering buyers \u2014 ClickHouse comp.",
+    "similarTo": [
+      "ClickHouse",
+      "Semgrep"
+    ],
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "pastCustomer": true,
+    "priority": true
+  },
+  {
+    "name": "Baseten",
+    "website": "baseten.co",
+    "employees": 23,
+    "industry": "Computer Software",
+    "ae": "Jeet Singh",
+    "score": 84,
+    "tier": "strong",
+    "archetype": "ai-native",
+    "rationale": "ML model deployment API, developer-first, technical ML buyers, PLG motion \u2014 Fireworks AI direct comp.",
+    "similarTo": [
+      "Fireworks AI",
+      "Supabase"
+    ],
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "pastCustomer": true,
+    "priority": true
+  },
+  {
+    "name": "Pinecone",
+    "website": "pinecone.io",
+    "employees": 58,
+    "industry": "Computer Software",
+    "ae": "Emma Kallner",
+    "score": 88,
+    "tier": "strong",
+    "archetype": "ai-native",
+    "rationale": "Vector DB API with massive AI/ML developer community, PLG self-serve, technical buyers \u2014 Supabase comp for AI infra.",
+    "similarTo": [
+      "Supabase",
+      "Fireworks AI"
+    ],
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "pastCustomer": true,
+    "priority": true
+  },
+  {
+    "name": "Wistia",
+    "website": "wistia.com",
+    "employees": 184,
+    "industry": "Computer Software",
+    "ae": "Andrew Young",
+    "score": 68,
+    "tier": "good",
+    "archetype": "plg-saas",
+    "rationale": "Video hosting with developer API and active community of marketers/creators \u2014 PLG motion with technical integrations.",
+    "similarTo": [
+      "Gamma",
+      "Vercel"
+    ],
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "pastCustomer": true,
+    "priority": false
+  },
+  {
+    "name": "Loxo",
+    "website": "loxo.co",
+    "employees": 57,
+    "industry": "Computer Software",
+    "ae": "Jesse Schreiber",
+    "score": 70,
+    "tier": "good",
+    "archetype": "ai-native",
+    "pastCustomer": true,
+    "rationale": "AI-native recruiting platform with developer API, technical buyers, PLG motion \u2014 Semgrep comp for talent tech.",
+    "similarTo": [
+      "Gamma",
+      "Semgrep"
+    ],
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "priority": false
+  },
+  {
+    "name": "Orfium",
+    "website": "orfium.com",
+    "employees": null,
+    "industry": "Computer Software",
+    "ae": "Jesse Schreiber",
+    "score": 68,
+    "tier": "good",
+    "archetype": "developer-tooling",
+    "rationale": "Music rights/royalties tech with developer API, data engineering buyers, and OSS-adjacent tooling.",
+    "similarTo": [
+      "Exa",
+      "Semgrep"
+    ],
+    "pastCustomer": false,
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "priority": false
+  },
+  {
+    "name": "Zeitview",
+    "website": "zeitview.com",
+    "employees": null,
+    "industry": "Information Technology",
+    "ae": "Jesse Schreiber",
+    "score": 66,
+    "tier": "good",
+    "archetype": "ai-native",
+    "rationale": "AI drone inspection platform with technical engineering buyers and data API \u2014 AI-native physical world comp.",
+    "similarTo": [
+      "Fireworks AI",
+      "Fal"
+    ],
+    "pastCustomer": false,
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "priority": false
+  },
+  {
+    "name": "appfire",
+    "website": "appfire.com",
+    "employees": 1000,
+    "industry": "Computer Software",
+    "ae": "Jesse Schreiber",
+    "score": 70,
+    "tier": "good",
+    "archetype": "developer-tooling",
+    "rationale": "Atlassian app marketplace leader with large developer ecosystem and technical Jira/Confluence buyers.",
+    "similarTo": [
+      "Semgrep",
+      "Vercel"
+    ],
+    "pastCustomer": false,
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "priority": false
+  },
+  {
+    "name": "Galileo",
+    "website": "galileo.io",
+    "employees": 300,
+    "industry": "Computer Software",
+    "ae": "Jesse Schreiber",
+    "score": 72,
+    "tier": "good",
+    "archetype": "ai-native",
+    "rationale": "AI/ML data quality platform with technical ML engineering buyers \u2014 strong data-infra community signal.",
+    "similarTo": [
+      "Fireworks AI",
+      "Exa"
+    ],
+    "pastCustomer": false,
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "priority": false
+  },
+  {
+    "name": "ABBYY",
+    "website": "abbyy.com",
+    "employees": 1000,
+    "industry": "Computer Software",
+    "ae": "Trevor Plaut",
+    "score": 68,
+    "tier": "good",
+    "archetype": "ai-native",
+    "rationale": "AI document processing with developer API and SDK, technical buyers \u2014 intelligent automation community.",
+    "similarTo": [
+      "Fireworks AI",
+      "Exa"
+    ],
+    "pastCustomer": false,
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "priority": false
+  },
+  {
+    "name": "Pipefy",
+    "website": "pipefy.com",
+    "employees": 608,
+    "industry": "Computer Software",
+    "ae": "Trevor Plaut",
+    "score": 66,
+    "tier": "good",
+    "archetype": "plg-saas",
+    "rationale": "No-code process automation with developer API and growing builder community \u2014 Tines comp for BPM.",
+    "similarTo": [
+      "Tines",
+      "Gamma"
+    ],
+    "pastCustomer": false,
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "priority": false
+  },
+  {
+    "name": "Elementor",
+    "website": "elementor.com",
+    "employees": 366,
+    "industry": "Computer Software",
+    "ae": "Andrew Young",
+    "score": 72,
+    "tier": "good",
+    "archetype": "developer-tooling",
+    "rationale": "Web builder with massive developer/designer community, plugin ecosystem, and technical WordPress buyers.",
+    "similarTo": [
+      "Vercel",
+      "Gamma"
+    ],
+    "pastCustomer": false,
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "priority": false
+  },
+  {
+    "name": "Oxy",
+    "website": "oxylabs.io",
+    "employees": 1000,
+    "industry": "Computer Software",
+    "ae": "Andrew Young",
+    "score": 75,
+    "tier": "strong",
+    "archetype": "developer-tooling",
+    "rationale": "Web scraping/data collection API with developer-first distribution, large technical community, and PLG motion.",
+    "similarTo": [
+      "Exa",
+      "Semgrep"
+    ],
+    "pastCustomer": false,
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "priority": false
+  },
+  {
+    "name": "Venafi",
+    "website": "venafi.com",
+    "employees": 438,
+    "industry": "Computer Software",
+    "ae": "Andrew Young",
+    "score": 70,
+    "tier": "good",
+    "archetype": "security",
+    "rationale": "Machine identity security with developer API, technical DevSecOps buyers, and growing OSS-adjacent community.",
+    "similarTo": [
+      "Semgrep",
+      "Cyera"
+    ],
+    "pastCustomer": false,
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "priority": false
+  },
+  {
+    "name": "Thinkific",
+    "website": "thinkific.com",
+    "employees": 347,
+    "industry": "Information Technology",
+    "ae": "Andrew Young",
+    "score": 67,
+    "tier": "good",
+    "archetype": "plg-saas",
+    "rationale": "Online course platform with developer API, active creator community, and technical integration buyers.",
+    "similarTo": [
+      "Gamma",
+      "Vercel"
+    ],
+    "pastCustomer": false,
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "priority": false
+  },
+  {
+    "name": "Chainlink",
+    "website": "chain.link",
+    "employees": 414,
+    "industry": "Computer Software",
+    "ae": "Andrew Weber",
+    "score": 78,
+    "tier": "strong",
+    "archetype": "developer-tooling",
+    "pastCustomer": true,
+    "rationale": "Web3 oracle network, OSS-first, massive blockchain developer community \u2014 former customer with strong re-engage signal.",
+    "similarTo": [
+      "Supabase",
+      "Exa"
+    ],
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": "Former customer \u2014 Web3 infra, active developer community",
+      "champMove": false
+    },
+    "hasSignal": true,
+    "priority": false
+  },
+  {
+    "name": "Gcore",
+    "website": "gcore.com",
+    "employees": null,
+    "industry": "Computer Software",
+    "ae": "Andrew Weber",
+    "score": 72,
+    "tier": "good",
+    "archetype": "developer-tooling",
+    "rationale": "Developer cloud infrastructure with CDN/edge API, technical buyers, growing developer community.",
+    "similarTo": [
+      "Vercel",
+      "Fireworks AI"
+    ],
+    "pastCustomer": false,
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "priority": false
+  },
+  {
+    "name": "Artlist",
+    "website": "artlist.io",
+    "employees": null,
+    "industry": "Computer Software",
+    "ae": "Andrew Weber",
+    "score": 66,
+    "tier": "good",
+    "archetype": "plg-saas",
+    "rationale": "Creative media API for developers and content creators, PLG self-serve, active creator community.",
+    "similarTo": [
+      "Fal",
+      "Gamma"
+    ],
+    "pastCustomer": false,
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "priority": false
+  },
+  {
+    "name": "Jit",
+    "website": "jit.io",
+    "employees": 50,
+    "industry": "Software Development",
+    "ae": "Jake Bradley",
+    "score": 80,
+    "tier": "strong",
+    "archetype": "security",
+    "pastCustomer": true,
+    "rationale": "Developer-first security automation, OSS-adjacent, DevSecOps buyers \u2014 former customer, strong Semgrep/GitGuardian comp.",
+    "similarTo": [
+      "Semgrep",
+      "Incident.io"
+    ],
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "priority": true
+  },
+  {
+    "name": "Very Good Security",
+    "website": "verygoodsecurity.com",
+    "employees": 172,
+    "industry": "Computer Software",
+    "ae": "Jake Bradley",
+    "score": 76,
+    "tier": "strong",
+    "archetype": "developer-tooling",
+    "rationale": "Data security vault API, developer-first, technical security/engineering buyers \u2014 Skyflow/Supabase comp.",
+    "similarTo": [
+      "Supabase",
+      "Cyera"
+    ],
+    "pastCustomer": false,
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "priority": false
+  },
+  {
+    "name": "Abridge",
+    "website": "abridge.com",
+    "employees": 50,
+    "industry": "Computer Software",
+    "ae": "Jake Bradley",
+    "score": 72,
+    "tier": "good",
+    "archetype": "ai-native",
+    "rationale": "AI clinical documentation, AI-native with growing community of healthcare developers and API integrations.",
+    "similarTo": [
+      "Fireworks AI",
+      "Otter.ai"
+    ],
+    "pastCustomer": false,
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "priority": false
+  },
+  {
+    "name": "Boardy.ai",
+    "website": "boardy.ai",
+    "employees": null,
+    "industry": "Computer Software",
+    "ae": "Jake Bradley",
+    "score": 68,
+    "tier": "good",
+    "archetype": "ai-native",
+    "pastCustomer": true,
+    "rationale": "AI networking/relationship assistant, AI-native, technical buyers \u2014 former customer with potential re-engage.",
+    "similarTo": [
+      "Fireworks AI",
+      "Gamma"
+    ],
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "priority": false
+  },
+  {
+    "name": "Latitude Ai",
+    "website": "lat.ai",
+    "employees": 557,
+    "industry": "Computer Software",
+    "ae": "Jake Bradley",
+    "score": 70,
+    "tier": "good",
+    "archetype": "ai-native",
+    "rationale": "Autonomous driving AI, technical ML/robotics engineering buyers, developer-adjacent research community.",
+    "similarTo": [
+      "Fireworks AI",
+      "Replit"
+    ],
+    "pastCustomer": false,
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "priority": false
+  },
+  {
+    "name": "Freshpaint",
+    "website": "freshpaint.io",
+    "employees": 23,
+    "industry": "Computer Software",
+    "ae": "James McTavish",
+    "score": 74,
+    "tier": "good",
+    "archetype": "developer-tooling",
+    "pastCustomer": true,
+    "rationale": "Healthcare analytics CDP with developer API, technical data/eng buyers \u2014 former customer, Census/Hightouch comp.",
+    "similarTo": [
+      "Census",
+      "Supabase"
+    ],
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "priority": false
+  },
+  {
+    "name": "Sigma AI",
+    "website": "sigma.ai",
+    "employees": 873,
+    "industry": "Computer Software",
+    "ae": "James McTavish",
+    "score": 68,
+    "tier": "good",
+    "archetype": "ai-native",
+    "rationale": "AI data labeling platform, technical ML buyers, growing community of AI training data practitioners.",
+    "similarTo": [
+      "Fireworks AI",
+      "Exa"
+    ],
+    "pastCustomer": false,
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "priority": false
+  },
+  {
+    "name": "Symphony",
+    "website": "symphony.com",
+    "employees": 1000,
+    "industry": "Computer Software",
+    "ae": "James McTavish",
+    "score": 66,
+    "tier": "good",
+    "archetype": "developer-tooling",
+    "rationale": "Secure messaging platform with developer API for financial services, technical buyers, Slack-like community.",
+    "similarTo": [
+      "Incident.io",
+      "Semgrep"
+    ],
+    "pastCustomer": false,
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "priority": false
+  },
+  {
+    "name": "Lattice",
+    "website": "lattice.com",
+    "employees": 662,
+    "industry": "Computer Software",
+    "ae": "Jeet Singh",
+    "score": 72,
+    "tier": "good",
+    "archetype": "plg-saas",
+    "pastCustomer": true,
+    "rationale": "HR/people ops platform with developer API, PLG roots, technical HRIS integration buyers \u2014 former customer.",
+    "similarTo": [
+      "Gamma",
+      "Exa"
+    ],
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": "Former customer \u2014 re-engage with new GTM motion context",
+      "champMove": false
+    },
+    "hasSignal": true,
+    "priority": false
+  },
+  {
+    "name": "Cambridge Quantum",
+    "website": "quantinuum.com",
+    "employees": 366,
+    "industry": "Computer Software",
+    "ae": "Jeet Singh",
+    "score": 74,
+    "tier": "good",
+    "archetype": "developer-tooling",
+    "rationale": "Quantum computing software with developer SDK, technical research buyers, growing quantum developer community.",
+    "similarTo": [
+      "Fireworks AI",
+      "Semgrep"
+    ],
+    "pastCustomer": false,
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "priority": false
+  },
+  {
+    "name": "Gruve",
+    "website": "gruve.ai",
+    "employees": null,
+    "industry": "Computer Software",
+    "ae": "Jeet Singh",
+    "score": 68,
+    "tier": "good",
+    "archetype": "ai-native",
+    "rationale": "AI services platform, technical ML/data engineering buyers, AI-native professional services with community signal.",
+    "similarTo": [
+      "Fireworks AI",
+      "Exa"
+    ],
+    "pastCustomer": false,
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "priority": false
+  },
+  {
+    "name": "Soul AI",
+    "website": "soulhq.ai",
+    "employees": null,
+    "industry": "Computer Software",
+    "ae": "Emma Kallner",
+    "score": 70,
+    "tier": "good",
+    "archetype": "ai-native",
+    "rationale": "AI-native platform with developer community and technical buyers \u2014 growing AI agent ecosystem.",
+    "similarTo": [
+      "Fireworks AI",
+      "Fal"
+    ],
+    "pastCustomer": false,
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "priority": false
+  },
+  {
+    "name": "Ctrl IQ",
+    "website": "ciq.com",
+    "employees": 130,
+    "industry": "Computer Software",
+    "ae": "Nicholas Bontempo",
+    "score": 74,
+    "tier": "good",
+    "archetype": "developer-tooling",
+    "pastCustomer": true,
+    "rationale": "Enterprise Linux/HPC infrastructure, OSS-adjacent, technical DevOps/HPC buyers \u2014 former customer.",
+    "similarTo": [
+      "Semgrep",
+      "Vercel"
+    ],
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "priority": false
+  },
+  {
+    "name": "Foundation AI",
+    "website": "foundationai.com",
+    "employees": null,
+    "industry": "Computer Software",
+    "ae": "Nicholas Bontempo",
+    "score": 72,
+    "tier": "good",
+    "archetype": "ai-native",
+    "pastCustomer": true,
+    "rationale": "AI foundation models/infra, technical ML buyers \u2014 former customer with strong AI-native profile.",
+    "similarTo": [
+      "Fireworks AI",
+      "Replit"
+    ],
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "priority": false
+  },
+  {
+    "name": "Magnet Forensics",
+    "website": "magnetforensics.com",
+    "employees": 493,
+    "industry": "Computer Software",
+    "ae": "Nicholas Bontempo",
+    "score": 70,
+    "tier": "good",
+    "archetype": "security",
+    "rationale": "Digital forensics platform with technical security/law enforcement buyers and developer tooling layer.",
+    "similarTo": [
+      "Semgrep",
+      "Cyera"
+    ],
+    "pastCustomer": false,
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "priority": false
+  },
+  {
+    "name": "Gelato",
+    "website": "gelato.com",
+    "employees": 331,
+    "industry": "Computer Software",
+    "ae": "Nicholas Bontempo",
+    "score": 68,
+    "tier": "good",
+    "archetype": "developer-tooling",
+    "rationale": "Print/merch API platform, developer-first integration buyers, API-led distribution with creator community.",
+    "similarTo": [
+      "Vercel",
+      "Exa"
+    ],
+    "pastCustomer": false,
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "priority": false
+  },
+  {
+    "name": "Correlation One",
+    "website": "correlation-one.com",
+    "employees": 1000,
+    "industry": "Computer Software",
+    "ae": "Nicholas Bontempo",
+    "score": 67,
+    "tier": "good",
+    "archetype": "plg-saas",
+    "rationale": "Data science training/upskilling platform with active developer learner community.",
+    "similarTo": [
+      "Replit",
+      "Gamma"
+    ],
+    "pastCustomer": false,
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "priority": false
+  },
+  {
+    "name": "AngelList",
+    "website": "angellist.com",
+    "employees": 1000,
+    "industry": "Computer Software",
+    "ae": "Prabhnoor Singh",
+    "score": 72,
+    "tier": "good",
+    "archetype": "developer-tooling",
+    "rationale": "Startup/VC platform with developer API, large technical founder community, and product-led distribution.",
+    "similarTo": [
+      "Exa",
+      "Supabase"
+    ],
+    "pastCustomer": false,
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "priority": false
+  },
+  {
+    "name": "Athelas",
+    "website": "athelas.com",
+    "employees": 250,
+    "industry": "Computer Software",
+    "ae": "Prabhnoor Singh",
+    "score": 70,
+    "tier": "good",
+    "archetype": "ai-native",
+    "rationale": "AI healthcare tech with technical clinical/eng buyers, developer API, and growing AI health community.",
+    "similarTo": [
+      "Fireworks AI",
+      "Exa"
+    ],
+    "pastCustomer": false,
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "priority": false
+  },
+  {
+    "name": "Quorum",
+    "website": "quorum.us",
+    "employees": 293,
+    "industry": "Computer Software",
+    "ae": "Prabhnoor Singh",
+    "score": 62,
+    "tier": "good",
+    "archetype": "plg-saas",
+    "pastCustomer": true,
+    "rationale": "Government affairs SaaS \u2014 former customer, some developer API depth but primarily non-technical policy buyers.",
+    "similarTo": [
+      "Gamma",
+      "Exa"
+    ],
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "priority": false
+  },
+  {
+    "name": "ConnexAI",
+    "website": "connex.ai",
+    "employees": 10,
+    "industry": "Computer Software",
+    "ae": "Jeet Singh",
+    "score": 68,
+    "tier": "good",
+    "archetype": "ai-native",
+    "rationale": "AI contact center platform, technical CX/ops buyers, AI-native voice and chat automation.",
+    "similarTo": [
+      "Cresta",
+      "Otter.ai"
+    ],
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "pastCustomer": false,
+    "priority": false
+  },
+  {
+    "name": "Jorie AI",
+    "website": "jorie.ai",
+    "employees": null,
+    "industry": "Computer Software",
+    "ae": "Jeet Singh",
+    "score": 67,
+    "tier": "good",
+    "archetype": "ai-native",
+    "rationale": "AI healthcare revenue cycle automation, technical clinical/ops buyers \u2014 Cresta comp for healthcare CX.",
+    "similarTo": [
+      "Cresta",
+      "Fireworks AI"
+    ],
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "pastCustomer": false,
+    "priority": false
+  },
+  {
+    "name": "Vosyn",
+    "website": "vosyn.ai",
+    "employees": null,
+    "industry": "Computer Software",
+    "ae": "Jeet Singh",
+    "score": 66,
+    "tier": "good",
+    "archetype": "ai-native",
+    "rationale": "AI voice synthesis and language platform, developer API, technical buyers building voice workflows.",
+    "similarTo": [
+      "Cresta",
+      "Fireworks AI"
+    ],
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "pastCustomer": false,
+    "priority": false
+  },
+  {
+    "name": "Thoth AI",
+    "website": "aithoth.com",
+    "employees": null,
+    "industry": "Computer Software",
+    "ae": "Trevor Plaut",
+    "score": 65,
+    "tier": "good",
+    "archetype": "ai-native",
+    "rationale": "AI platform for enterprise workflows, technical buyers, AI-native automation layer.",
+    "similarTo": [
+      "Cresta",
+      "Fireworks AI"
+    ],
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "pastCustomer": false,
+    "priority": false
+  },
+  {
+    "name": "ConcertAI",
+    "website": "concertai.com",
+    "employees": null,
+    "industry": "Computer Software",
+    "ae": "Trevor Plaut",
+    "score": 67,
+    "tier": "good",
+    "archetype": "ai-native",
+    "rationale": "AI-powered clinical data platform, technical ML/data buyers in life sciences \u2014 AI-native research ops.",
+    "similarTo": [
+      "Cresta",
+      "Exa"
+    ],
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "pastCustomer": false,
+    "priority": false
+  },
+  {
+    "name": "Armada",
+    "website": "armada.ai",
+    "employees": null,
+    "industry": "Computer Software",
+    "ae": "Andrew Weber",
+    "score": 68,
+    "tier": "good",
+    "archetype": "ai-native",
+    "rationale": "AI edge compute platform, technical infrastructure buyers, AI-native deployment for remote environments.",
+    "similarTo": [
+      "Cresta",
+      "Fireworks AI"
+    ],
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "pastCustomer": false,
+    "priority": false
+  },
+  {
+    "name": "BluePond AI",
+    "website": "bluepond.ai",
+    "employees": null,
+    "industry": "Computer Software",
+    "ae": "Prabhnoor Singh",
+    "score": 65,
+    "tier": "good",
+    "archetype": "ai-native",
+    "rationale": "AI fintech platform, technical financial services buyers, AI-native data and workflow automation.",
+    "similarTo": [
+      "Cresta",
+      "Exa"
+    ],
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "pastCustomer": false,
+    "priority": false
+  },
+  {
+    "name": "Developer Express",
+    "website": "devexpress.com",
+    "employees": 183,
+    "industry": "Computer Software",
+    "ae": "Collin Knee",
+    "score": 74,
+    "tier": "good",
+    "archetype": "developer-tooling",
+    "rationale": "UI component library for developers, large developer community, technical engineering buyers \u2014 Mintlify comp for dev tooling.",
+    "similarTo": [
+      "Mintlify",
+      "Semgrep"
+    ],
+    "signals": {
+      "webVisit": false,
+      "gtmHire": null,
+      "news": null,
+      "champMove": false
+    },
+    "hasSignal": false,
+    "pastCustomer": false,
+    "priority": false
+  }
+  ,
+  {
+    "name": "Glean",
+    "website": "glean.com",
+    "employees": 213,
+    "industry": "Computer Software",
+    "ae": "Jake Bradley",
+    "score": 87,
+    "tier": "strong",
+    "archetype": "ai-native",
+    "rationale": "Enterprise AI search with strong PLG motion and developer community. Technical buyers, OSS-adjacent, close to Cresta/Mintlify profile.",
+    "signals": {"webVisit": false, "gtmHire": null, "news": null, "champMove": false},
+    "hasSignal": false,
+    "similarTo": ["Cresta", "Mintlify"],
+    "pastCustomer": false
+  },
+  {
+    "name": "Snorkel AI",
+    "website": "snorkel.ai",
+    "employees": 127,
+    "industry": "Computer Software",
+    "ae": "Jake Bradley",
+    "score": 85,
+    "tier": "strong",
+    "archetype": "ai-native",
+    "rationale": "Data-centric AI platform with OSS roots and deeply technical buyers. Core ML infrastructure — close to Fireworks AI anchor.",
+    "signals": {"webVisit": false, "gtmHire": null, "news": null, "champMove": false},
+    "hasSignal": false,
+    "similarTo": ["Fireworks AI", "Semgrep"],
+    "pastCustomer": false
+  },
+  {
+    "name": "Lily AI",
+    "website": "lily.ai",
+    "employees": 250,
+    "industry": "Computer Software",
+    "ae": "Jake Bradley",
+    "score": 68,
+    "tier": "moderate",
+    "archetype": "ai-native",
+    "rationale": "AI-powered product attribution for commerce — technical platform but more vertical/retail-focused than pure dev-first.",
+    "signals": {"webVisit": false, "gtmHire": null, "news": null, "champMove": false},
+    "hasSignal": false,
+    "similarTo": ["Cyera", "Exa"],
+    "pastCustomer": false
+  },
+  {
+    "name": "AI21 Labs",
+    "website": "ai21.com",
+    "employees": 167,
+    "industry": "Computer Software",
+    "ae": "Jeet Singh",
+    "score": 89,
+    "tier": "strong",
+    "archetype": "ai-native",
+    "rationale": "LLM API platform with developer-first distribution and OSS adjacent tooling. Near-perfect fit — mirrors Fireworks AI anchor.",
+    "signals": {"webVisit": false, "gtmHire": null, "news": null, "champMove": false},
+    "hasSignal": false,
+    "similarTo": ["Fireworks AI", "Fal"],
+    "pastCustomer": false
+  },
+  {
+    "name": "H2O.ai",
+    "website": "h2o.ai",
+    "employees": 381,
+    "industry": "Computer Software",
+    "ae": "Jeet Singh",
+    "score": 84,
+    "tier": "strong",
+    "archetype": "ai-native",
+    "rationale": "Open-source ML platform with large community and technical buyers. OSS-first GTM mirrors ClickHouse and Semgrep anchors.",
+    "signals": {"webVisit": false, "gtmHire": null, "news": null, "champMove": false},
+    "hasSignal": false,
+    "similarTo": ["ClickHouse", "Semgrep"],
+    "pastCustomer": false
+  },
+  {
+    "name": "RelationalAI",
+    "website": "relational.ai",
+    "employees": 159,
+    "industry": "Computer Software",
+    "ae": "Jeet Singh",
+    "score": 82,
+    "tier": "strong",
+    "archetype": "ai-native",
+    "rationale": "AI knowledge graph platform with deeply technical buyers and developer-first distribution. Strong ICP overlap with Exa.",
+    "signals": {"webVisit": false, "gtmHire": null, "news": null, "champMove": false},
+    "hasSignal": false,
+    "similarTo": ["Exa", "ClickHouse"],
+    "pastCustomer": false
+  },
+  {
+    "name": "Platform.sh",
+    "website": "platform.sh",
+    "employees": 349,
+    "industry": "Computer Software",
+    "ae": "Jeet Singh",
+    "score": 76,
+    "tier": "strong",
+    "archetype": "developer-tooling",
+    "rationale": "Cloud PaaS built for developer teams with strong dev community. Infrastructure-first GTM with technical buyers.",
+    "signals": {"webVisit": false, "gtmHire": null, "news": null, "champMove": false},
+    "hasSignal": false,
+    "similarTo": ["Vercel", "Replit"],
+    "pastCustomer": false
+  },
+  {
+    "name": "Vectra AI",
+    "website": "vectra.ai",
+    "employees": 643,
+    "industry": "Computer Software",
+    "ae": "Collin Knee",
+    "score": 72,
+    "tier": "strong",
+    "archetype": "security",
+    "rationale": "AI-powered network threat detection with technical security buyers. Well-funded with strong engineering community signals.",
+    "signals": {"webVisit": false, "gtmHire": null, "news": null, "champMove": false},
+    "hasSignal": false,
+    "similarTo": ["Cyera", "Semgrep"],
+    "pastCustomer": false
+  },
+  {
+    "name": "Transmit Security",
+    "website": "transmitsecurity.com",
+    "employees": 342,
+    "industry": "Computer Software",
+    "ae": "Nicholas Bontempo",
+    "score": 70,
+    "tier": "moderate",
+    "archetype": "security",
+    "rationale": "Identity security platform with technical buyers and massive funding. More enterprise sales-led than PLG but strong technical community.",
+    "signals": {"webVisit": false, "gtmHire": null, "news": null, "champMove": false},
+    "hasSignal": false,
+    "similarTo": ["Cyera", "Semgrep"],
+    "pastCustomer": false
+  },
+  {
+    "name": "CloudBees",
+    "website": "cloudbees.com",
+    "employees": 525,
+    "industry": "Computer Software",
+    "ae": "Prabhnoor Singh",
+    "score": 78,
+    "tier": "strong",
+    "archetype": "developer-tooling",
+    "rationale": "DevOps/CI-CD platform with developer-first buyers and large OSS community via Jenkins. Strong ICP overlap with Semgrep.",
+    "signals": {"webVisit": false, "gtmHire": null, "news": null, "champMove": false},
+    "hasSignal": false,
+    "similarTo": ["Semgrep", "Incident.io"],
+    "pastCustomer": false
+  },
+  {
+    "name": "BetterCloud",
+    "website": "bettercloud.com",
+    "employees": 317,
+    "industry": "Computer Software",
+    "ae": "Prabhnoor Singh",
+    "score": 65,
+    "tier": "moderate",
+    "archetype": "developer-tooling",
+    "rationale": "SaaS ops platform with IT/dev buyers and workflow automation focus. Technical but more IT-ops than pure dev-first.",
+    "signals": {"webVisit": false, "gtmHire": null, "news": null, "champMove": false},
+    "hasSignal": false,
+    "similarTo": ["Incident.io", "Gamma"],
+    "pastCustomer": false
+  },
+  {
+    "name": "LogicMonitor",
+    "website": "logicmonitor.com",
+    "employees": 1158,
+    "industry": "Computer Software",
+    "ae": "Trevor Plaut",
+    "score": 71,
+    "tier": "strong",
+    "archetype": "developer-tooling",
+    "rationale": "Infrastructure monitoring with technical buyers and strong community. DevOps/SRE audience mirrors Incident.io anchor.",
+    "signals": {"webVisit": false, "gtmHire": null, "news": null, "champMove": false},
+    "hasSignal": false,
+    "similarTo": ["Incident.io", "Semgrep"],
+    "pastCustomer": false
+  },
+  {
+    "name": "TigerGraph",
+    "website": "tigergraph.com",
+    "employees": 207,
+    "industry": "Computer Software",
+    "ae": "Trevor Plaut",
+    "score": 75,
+    "tier": "strong",
+    "archetype": "data-infra",
+    "rationale": "Graph database platform with technical buyers and developer community. OSS-adjacent data infra mirrors ClickHouse anchor.",
+    "signals": {"webVisit": false, "gtmHire": null, "news": null, "champMove": false},
+    "hasSignal": false,
+    "similarTo": ["ClickHouse", "Exa"],
+    "pastCustomer": false
+  },
+  {
+    "name": "Sourcegraph",
+    "website": "sourcegraph.com",
+    "employees": 216,
+    "industry": "Computer Software",
+    "ae": "Andrew Weber",
+    "score": 88,
+    "tier": "strong",
+    "archetype": "developer-tooling",
+    "rationale": "Code intelligence and universal search — deeply developer-first with OSS core and strong engineering community. Near-perfect ICP.",
+    "signals": {"webVisit": false, "gtmHire": null, "news": null, "champMove": false},
+    "hasSignal": false,
+    "similarTo": ["Semgrep", "Replit"],
+    "pastCustomer": false
+  },
+  {
+    "name": "Apiiro",
+    "website": "apiiro.com",
+    "employees": 121,
+    "industry": "Computer Software",
+    "ae": "Ben Miller",
+    "score": 76,
+    "tier": "strong",
+    "archetype": "security",
+    "rationale": "Code risk platform with developer-first security buyers. AppSec community mirrors Semgrep and Cyera anchor profiles.",
+    "signals": {"webVisit": false, "gtmHire": null, "news": null, "champMove": false},
+    "hasSignal": false,
+    "similarTo": ["Semgrep", "Cyera"],
+    "pastCustomer": false,
+  {
+    "name": "Fireworks",
+    "website": "fireworks.ai",
+    "employees": 85,
+    "industry": "Computer Software",
+    "ae": "Ben Miller",
+    "score": 95,
+    "tier": "strong",
+    "archetype": "ai-native",
+    "rationale": "Reference anchor company — fast LLM inference API, developer-first distribution, OSS models, strong technical community. Near-perfect ICP.",
+    "signals": {"webVisit": false, "gtmHire": null, "news": null, "champMove": false},
+    "hasSignal": false,
+    "similarTo": ["Fal", "Together AI"],
+    "pastCustomer": false
+  },
+  {
+    "name": "poolside",
+    "website": "poolside.ai",
+    "employees": 200,
+    "industry": "Computer Software",
+    "ae": "Renoli Huauya",
+    "score": 91,
+    "tier": "strong",
+    "archetype": "ai-native",
+    "rationale": "AI code generation platform, ~$500M raised, deeply developer-first with strong engineering community. Close to Replit and Fireworks AI anchors.",
+    "signals": {"webVisit": false, "gtmHire": null, "news": null, "champMove": false},
+    "hasSignal": false,
+    "similarTo": ["Replit", "Fireworks AI"],
+    "pastCustomer": false
+  }
+\,
+  {
+      "name": "Cognition",
+      "website": "cognition.ai",
+      "employees": 50,
+      "industry": "Computer Software",
+      "ae": "Emma Kallner",
+      "score": 93,
+      "tier": "strong",
+      "archetype": "ai-native",
+      "rationale": "Makers of Devin (AI software engineer) \u2014 deeply developer-first, $175M raised, strong engineering community. Near-perfect ICP.",
+      "signals": {
+          "webVisit": false,
+          "gtmHire": null,
+          "news": null,
+          "champMove": false
+      },
+      "hasSignal": false,
+      "similarTo": [
+          "Replit",
+          "Fireworks AI"
+      ],
+      "pastCustomer": false
+  },
+  {
+      "name": "ASAPP",
+      "website": "asapp.com",
+      "employees": 300,
+      "industry": "Computer Software",
+      "ae": "James McTavish",
+      "score": 82,
+      "tier": "strong",
+      "archetype": "ai-native",
+      "rationale": "AI-native contact center platform with deeply technical foundations and $380M raised. Strong ICP overlap with Cresta and Sierra.",
+      "signals": {
+          "webVisit": false,
+          "gtmHire": null,
+          "news": null,
+          "champMove": false
+      },
+      "hasSignal": false,
+      "similarTo": [
+          "Cresta",
+          "Sierra"
+      ],
+      "pastCustomer": false
+  },
+  {
+      "name": "Cognigy",
+      "website": "cognigy.com",
+      "employees": 350,
+      "industry": "Computer Software",
+      "ae": "Andrew Young",
+      "score": 80,
+      "tier": "strong",
+      "archetype": "ai-native",
+      "rationale": "Conversational AI platform with developer-first agent builder, $100M raised. Enterprises build on it \u2014 technical buyer profile.",
+      "signals": {
+          "webVisit": false,
+          "gtmHire": null,
+          "news": null,
+          "champMove": false
+      },
+      "hasSignal": false,
+      "similarTo": [
+          "Cresta",
+          "Sierra"
+      ],
+      "pastCustomer": false
+  },
+  {
+      "name": "Parloa",
+      "website": "parloa.com",
+      "employees": 300,
+      "industry": "Computer Software",
+      "ae": "Collin Knee",
+      "score": 79,
+      "tier": "strong",
+      "archetype": "ai-native",
+      "rationale": "AI agent platform for contact centers, developer-first deployment model, $120M raised. Strong Cresta/Sierra profile.",
+      "signals": {
+          "webVisit": false,
+          "gtmHire": null,
+          "news": null,
+          "champMove": false
+      },
+      "hasSignal": false,
+      "similarTo": [
+          "Cresta",
+          "Sierra"
+      ],
+      "pastCustomer": false
+  },
+  {
+      "name": "Gladly",
+      "website": "gladly.com",
+      "employees": 200,
+      "industry": "Computer Software",
+      "ae": "Nicholas Bontempo",
+      "score": 72,
+      "tier": "strong",
+      "archetype": "ai-native",
+      "rationale": "AI-native customer service platform, $110M raised. Technical buyers, modern stack \u2014 closer to Sierra than legacy helpdesk.",
+      "signals": {
+          "webVisit": false,
+          "gtmHire": null,
+          "news": null,
+          "champMove": false
+      },
+      "hasSignal": false,
+      "similarTo": [
+          "Sierra",
+          "Cresta"
+      ],
+      "pastCustomer": false
+  },
+  {
+      "name": "Capacity",
+      "website": "capacity.com",
+      "employees": 250,
+      "industry": "Computer Software",
+      "ae": "Collin Knee",
+      "score": 71,
+      "tier": "strong",
+      "archetype": "ai-native",
+      "rationale": "AI helpdesk and support automation platform, $91M raised. Technical platform with API-first integration layer.",
+      "signals": {
+          "webVisit": false,
+          "gtmHire": null,
+          "news": null,
+          "champMove": false
+      },
+      "hasSignal": false,
+      "similarTo": [
+          "Sierra",
+          "Cresta"
+      ],
+      "pastCustomer": false
+  },
+  {
+      "name": "Assembled",
+      "website": "assembled.com",
+      "employees": 120,
+      "industry": "Computer Software",
+      "ae": "Ben Miller",
+      "score": 70,
+      "tier": "moderate",
+      "archetype": "ai-native",
+      "rationale": "Workforce management for modern support teams, $70M raised. Technical platform, developer-adjacent buyers, strong PLG signals.",
+      "signals": {
+          "webVisit": false,
+          "gtmHire": null,
+          "news": null,
+          "champMove": false
+      },
+      "hasSignal": false,
+      "similarTo": [
+          "Sierra",
+          "Incident.io"
+      ],
+      "pastCustomer": false
+  },
+  {
+      "name": "LangChain",
+      "website": "langchain.com",
+      "employees": 60,
+      "industry": "Computer Software",
+      "ae": "Trevor Plaut",
+      "score": 88,
+      "tier": "strong",
+      "archetype": "ai-native",
+      "rationale": "The dominant OSS LLM framework \u2014 massive developer community, deeply technical, PLG-native. Under-funded relative to impact but perfect ICP.",
+      "signals": {
+          "webVisit": false,
+          "gtmHire": null,
+          "news": null,
+          "champMove": false
+      },
+      "hasSignal": false,
+      "similarTo": [
+          "Semgrep",
+          "Exa"
+      ],
+      "pastCustomer": false
+  }
+]
+const S = { ae:'all', tier:'all', sig:'all', sort:'score', q:'' };
+
+function sc(s){ return s>=75?'#6c8fff':s>=50?'#fbbf24':'#5a6080' }
+function cfg(ae){ return AE_COLORS[ae]||AE_COLORS['_'] }
+
+function renderSidebar(){
+  const counts={};
+  ACCOUNTS.forEach(a=>{ counts[a.ae]=(counts[a.ae]||0)+1 });
+  let html=`<div class="ae-item${S.ae==='all'?' active':''}" onclick="selectAE('all')">
+    <div class="ae-avatar" style="background:rgba(108,143,255,.15);color:#6c8fff">ALL</div>
+    <span class="ae-name">All AEs</span>
+    <span class="ae-count">${ACCOUNTS.length}</span>
+  </div><div class="sdiv"></div>`;
+  Object.entries(counts).sort((a,b)=>b[1]-a[1]).forEach(([ae,cnt])=>{
+    const {c,b}=cfg(ae);
+    const init=ae.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+    const active=S.ae===ae;
+    const safeAE=ae.replace(/'/g,"\x27");
+    html+=`<div class="ae-item${active?' active':''}" onclick="selectAE('${safeAE}')">
+      <div class="ae-avatar" style="background:${b};color:${c}">${init}</div>
+      <span class="ae-name">${ae.split(' ')[0]}</span>
+      <span class="ae-count">${cnt}</span>
+    </div>`;
+  });
+  document.getElementById('ae-list').innerHTML=html;
+}
+
+function selectAE(ae){
+  S.ae=ae.replace(/\x27/g,"'");
+  renderSidebar();
+  renderGrid();
+}
+
+function getFiltered(){
+  let d=ACCOUNTS.filter(a=>{
+    if(S.ae!=='all'&&a.ae!==S.ae) return false;
+    if(S.tier!=='all'&&a.tier!==S.tier) return false;
+    if(S.sig==='hot'&&!a.hasSignal) return false;
+    if(S.q&&!a.name.toLowerCase().includes(S.q)&&!(a.website||'').toLowerCase().includes(S.q)) return false;
+    return true;
+  });
+  if(S.sort==='score')  d.sort((a,b)=>b.score-a.score);
+  if(S.sort==='alpha')  d.sort((a,b)=>a.name.localeCompare(b.name));
+  if(S.sort==='signal') d.sort((a,b)=>(b.hasSignal?1:0)-(a.hasSignal?1:0)||b.score-a.score);
+  return d;
+}
+
+function renderGrid(){
+  const d=getFiltered();
+  const strong=d.filter(a=>a.tier==='strong').length;
+  const hot=d.filter(a=>a.hasSignal).length;
+  const past=d.filter(a=>a.pastCustomer).length;
+  document.getElementById('stats').innerHTML=`
+    <span class="stat"><strong>${d.length}</strong>accounts</span>
+    <span class="stat"><strong>${strong}</strong>strong fit</span>
+    <span class="stat"><strong>${hot}</strong>&#x1F525; hot signal</span>
+    <span class="stat"><strong>${past}</strong>&#x21BA; past customers</span>`;
+  if(!d.length){
+    document.getElementById('grid').innerHTML='<div class="empty">No accounts match these filters</div>';
+    return;
+  }
+  document.getElementById('grid').innerHTML=d.map(a=>{
+    const {c,b}=cfg(a.ae);
+    const color=sc(a.score);
+    const simTags=(a.similarTo||[]).map(s=>`<span class="sim-tag">${s}</span>`).join('');
+    const sigs=[];
+    if(a.signals&&a.signals.webVisit)  sigs.push(`<span class="sig s-web">&#x1F441; Web visit L30D</span>`);
+    if(a.signals&&a.signals.gtmHire)   sigs.push(`<span class="sig s-hire">&#x1F4BC; ${a.signals.gtmHire}</span>`);
+    if(a.signals&&a.signals.news)      sigs.push(`<span class="sig s-news">&#x1F4F0; ${a.signals.news}</span>`);
+    if(a.signals&&a.signals.champMove) sigs.push(`<span class="sig s-champ">&#x1F3C6; Champion moved</span>`);
+    const nameEsc=a.name.replace(/'/g,"\x27");
+    return `<div class="card${a.tier==='strong'?' strong':''}" onclick="openDrawer('${nameEsc}')">
+      <div class="card-top">
+        <div><div class="card-name">${a.name}</div><div class="card-domain">${a.website||''}</div></div>
+        <span class="ae-badge" style="background:${b};color:${c}">${a.ae.split(' ')[0]}</span>
+      </div>
+      ${a.pastCustomer?'<div class="past-badge">&#x21BA; Past customer</div>':''}
+      <div class="score-row">
+        <div class="bar-wrap"><div class="bar" style="width:${a.score}%;background:${color}"></div></div>
+        <span class="score-num" style="color:${color}">${a.score}</span>
+      </div>
+      ${a.rationale?`<div class="rationale">${a.rationale}</div>`:''}
+      ${simTags?`<div class="similar-row"><span class="sim-label">like</span>${simTags}</div>`:''}
+      ${sigs.length?`<div class="sigs">${sigs.join('')}</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+function openDrawer(name){
+  const decoded=name.replace(/\x27/g,"'");
+  const a=ACCOUNTS.find(x=>x.name===decoded);
+  if(!a) return;
+  const {c,b}=cfg(a.ae);
+  const color=sc(a.score);
+  document.getElementById('d-name').textContent=a.name;
+  document.getElementById('d-web').textContent=a.website||'';
+  const sigs=[];
+  if(a.signals&&a.signals.webVisit)  sigs.push({dot:'#34c759',label:'Website visited in last 30 days (Common Room)'});
+  if(a.signals&&a.signals.gtmHire)   sigs.push({dot:'#6c8fff',label:`Hiring: ${a.signals.gtmHire}`});
+  if(a.signals&&a.signals.news)      sigs.push({dot:'#ffb347',label:a.signals.news});
+  if(a.signals&&a.signals.champMove) sigs.push({dot:'#ff6b6b',label:'Past champion detected at new company'});
+  const simTags=(a.similarTo||[]).map(s=>`<span class="sim-tag" style="font-size:12px;padding:3px 10px">${s}</span>`).join('');
+  const crUrl=`https://app.commonroom.io/community/11965/organizations?search=${encodeURIComponent(a.name)}`;
+  document.getElementById('drawer-body').innerHTML=`
+    <div class="dsec">
+      <div class="dsec-title">AE Owner</div>
+      <span class="ae-badge" style="background:${b};color:${c};font-size:13px;padding:5px 14px">${a.ae}</span>
+      ${a.pastCustomer?'<div class="past-warn">&#x21BA; <strong>Past customer</strong> &#x2014; confirm win-back context before outreach</div>':''}
+    </div>
+    <div class="dsec">
+      <div class="dsec-title">Common Room Fit Score</div>
+      <div style="display:flex;align-items:baseline;gap:10px;margin-bottom:8px">
+        <span class="score-big" style="color:${color}">${a.score}</span>
+        <span class="score-sub">/ 100 &#xB7; ${a.tier} fit &#xB7; ${a.archetype}</span>
+      </div>
+      <div class="bar-wrap" style="height:5px"><div class="bar" style="width:${a.score}%;background:${color}"></div></div>
+    </div>
+    <div class="dsec">
+      <div class="dsec-title">Why Common Room fits</div>
+      <p>${a.rationale||''}</p>
+    </div>
+    ${simTags?`<div class="dsec"><div class="dsec-title">Similar to</div><div style="display:flex;gap:6px;flex-wrap:wrap">${simTags}</div></div>`:''}
+    ${sigs.length?`<div class="dsec"><div class="dsec-title">Live Signals</div>
+      ${sigs.map(s=>`<div class="sig-row"><div class="sig-dot" style="background:${s.dot}"></div>${s.label}</div>`).join('')}
+    </div>`:''}
+    <div class="dsec">
+      <div class="dsec-title">Company</div>
+      <p>${a.employees?a.employees.toLocaleString()+' employees':'Headcount unknown'} &#xB7; ${a.industry||'Industry unknown'}</p>
+    </div>
+    <a class="cr-btn" href="${crUrl}" target="_blank" rel="noopener">Open in Common Room &#x2197;</a>`;
+  document.getElementById('ov').style.display='block';
+  document.getElementById('drawer').style.display='flex';
+}
+
+function closeDrawer(){
+  document.getElementById('ov').style.display='none';
+  document.getElementById('drawer').style.display='none';
+}
+
+document.getElementById('filters').addEventListener('click',e=>{
+  const btn=e.target.closest('[data-f]');
+  if(!btn) return;
+  const {f,v}=btn.dataset;
+  S[f]=v;
+  document.querySelectorAll(`[data-f="${f}"]`).forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderGrid();
+});
+
+document.getElementById('search').addEventListener('input',e=>{
+  S.q=e.target.value.toLowerCase();
+  renderGrid();
+});
+
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeDrawer(); });
+
+renderSidebar();
+renderGrid();
+</script>
+</body>
+</html>
